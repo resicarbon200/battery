@@ -25,10 +25,11 @@ int main(void) {
   Mat smoothed;
   Mat gray;
   Mat binary;
+  Mat reversed;
   Mat edge;
 
-  // int count;
-
+  double area;
+  
   while(1)//無限ループ
   {
     cap >> frame; //USBカメラが得た動画の１フレームを格納
@@ -39,30 +40,84 @@ int main(void) {
     //グレースケールに変換
     cvtColor(smoothed, gray, CV_BGR2GRAY);   
 
+    //二値化
+    threshold(gray, binary, 100, 255, THRESH_BINARY);   //第3引数が閾値
+
+    //反転
+    bitwise_not(binary, reversed);
+
     //輪郭の座標リスト
     vector<vector<Point>> contours;
-
-    //二値化
-    // threshold(gray, binary, count / 10, 255, THRESH_BINARY);   //第3引数が閾値
-    threshold(gray, binary, 55, 140, THRESH_BINARY);   //第3引数が閾値
-
+    
     //輪郭の取得
-    findContours(binary, contours, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
- 
-    // 検出された輪郭線を緑で描画
-    for (auto contour = contours.begin(); contour != contours.end(); contour++){
-        polylines(smoothed, *contour, true, Scalar(0, 255, 0), 2);
-    }   
- 
-    // //エッジ検出
-    // Canny(gray, edge, 60, 180);
+    findContours(reversed, contours, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
 
-    // putText(frame, to_string(count / 10).c_str(), Point(0, 50), FONT_HERSHEY_PLAIN, 4, (255, 255, 255), 5, LINE_AA);
-    // if(count++ > 2500) {
-    //   count = 0;
-    // }
+    Mat1b rev = reversed;    //Mat1bに変換
 
-    imshow("window", smoothed);//画像を表示．
+    //輪郭の処理
+    for(auto cont = contours.begin(); cont != contours.end(); cont++) {
+        polylines(smoothed, *cont, true, Scalar(0, 255, 0), 2);  //輪郭描画
+
+        vector<Point> approx;
+        approxPolyDP(*cont, approx, 10, true);    //多角形近似
+
+        if(approx.size() == 4) {
+          polylines(smoothed, approx, true, Scalar(255, 0, 0), 4);  //近似図形描画
+
+          int ul, ur, ll, lr;
+          Point upper, lower, lefter, righter;
+
+          //左上の頂点を探す
+          int min = INT_MAX;
+          for(int i = 0; i < 4; i++) {
+            int sum = approx[i].x + approx[i].y;
+            if(sum < min){
+              min = sum;
+              ul = i;
+            }
+          }
+
+          ll = (ul + 1) % 4;
+          lr = (ul + 2) % 4;
+          ur = (ul + 3) % 4;
+
+          upper = approx[ur] - approx[ul];
+          lower = approx[lr] - approx[ll];
+          lefter = approx[ll] - approx[ul];
+          righter = approx[lr] - approx[ur];
+
+          cout << "上の辺" << upper << endl;
+          cout << "下の辺" << lower << endl;
+          cout << "左の辺" << lefter << endl;
+          cout << "右の辺" << righter << endl;
+
+          cout << endl;
+          cout << "1=黒/0=白の行列" << endl;
+          cout << ">" << endl;
+
+          const int marker = 0x9a1e;
+
+          for(int i = 0; i < 6; i++) {
+            for(int j = 0; j < 6; j++) {
+              Point p = approx[ul] + (upper * (j + 0.5) + lower * (j + 0.5) + lefter * (i + 0.5) + righter * (i + 0.5)) / 12;
+              circle(smoothed, p, 5, Scalar(0, 0, 255), -1);
+              int brightness = rev(p);
+              cout << brightness / 255 << " ";
+            }
+            cout << endl;
+          }
+
+          cout << endl;
+
+          // vector<cv::Point> convh;
+          // convexHull(*cont, convh);     //凸包取得
+          // area = contourArea(convh);    //面積取得
+        }
+    }
+
+    // putText(smoothed, to_string(area).c_str(), Point(0, 50), FONT_HERSHEY_PLAIN, 4, (0, 0, 0), 5, LINE_AA);
+
+    imshow("window", smoothed);   //画像を表示
 
     // int key = waitKey(1000);   //キー待ち(ミリ秒)
     int key = waitKey(1);
