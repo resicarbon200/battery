@@ -1,4 +1,5 @@
 #include <iostream>
+#include <bitset>
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc.hpp>        //cvtColor
 #include <opencv2/imgproc/types_c.h>  //定数CV_**
@@ -21,6 +22,9 @@ int main(void) {
   cout << "succeed." << endl;
   cout << "* Press 'q' to finish this program." << endl;
 
+  const unsigned int marker = 0x9a1e;   //マーカーのデータ
+  bitset<32> bs(marker);
+
   Mat frame;    //1フレームの画像
   Mat smoothed;
   Mat gray;
@@ -29,7 +33,7 @@ int main(void) {
   Mat edge;
 
   double area;
-  
+
   while(1)//無限ループ
   {
     cap >> frame; //USBカメラが得た動画の１フレームを格納
@@ -86,6 +90,8 @@ int main(void) {
           lefter = approx[ll] - approx[ul];
           righter = approx[lr] - approx[ur];
 
+          cout << "********************" << endl;
+
           cout << "上の辺" << upper << endl;
           cout << "下の辺" << lower << endl;
           cout << "左の辺" << lefter << endl;
@@ -93,20 +99,47 @@ int main(void) {
 
           cout << endl;
           cout << "1=黒/0=白の行列" << endl;
-          cout << ">" << endl;
+          cout << "[" << endl;
 
-          const int marker = 0x9a1e;
+          int cnt_outer = 0;
+          int cnt_black = 0;
+          int cnt_white = 0;
 
           for(int i = 0; i < 6; i++) {
             for(int j = 0; j < 6; j++) {
               Point p = approx[ul] + (upper * (j + 0.5) + lower * (j + 0.5) + lefter * (i + 0.5) + righter * (i + 0.5)) / 12;
               circle(smoothed, p, 5, Scalar(0, 0, 255), -1);
-              int brightness = rev(p);
+              int brightness = rev(p);    //輝度　ただし白黒反転後の値なので注意
               cout << brightness / 255 << " ";
+
+              if(i == 0 || i == 5 || j == 0 || j == 5) {
+                if(brightness == 255) {
+                  cnt_outer++;
+                }
+              }else if((marker >> (4 - i) * 4 + (4 - j)) & 1u != 0) {
+                if(brightness == 255) {
+                  cnt_black++;
+                }
+              }else {
+                if(brightness == 0) {
+                  cnt_white++;
+                }
+              }
             }
             cout << endl;
           }
 
+          cout << "]" << endl;
+
+          cout << "枠一致率:" << cnt_outer << "/" << 20 << endl;
+          cout << "黒一致率:" << cnt_black << "/" << bs.count() << endl;
+          cout << "白一致率:" << cnt_white << "/" << 16 - bs.count() << endl;
+
+          if(cnt_outer / 20.0 > 0.8 && cnt_black / (float)bs.count() > 0.8 && cnt_white / (float)bs.count() > 0.8) {
+            cout << "\033[1;5;33m HIT \033[m" << endl;
+          } else {
+            cout << endl;
+          }
           cout << endl;
 
           // vector<cv::Point> convh;
@@ -118,6 +151,9 @@ int main(void) {
     // putText(smoothed, to_string(area).c_str(), Point(0, 50), FONT_HERSHEY_PLAIN, 4, (0, 0, 0), 5, LINE_AA);
 
     imshow("window", smoothed);   //画像を表示
+
+    cout << "1ループ終了" << endl;
+    cout << endl;
 
     // int key = waitKey(1000);   //キー待ち(ミリ秒)
     int key = waitKey(1);
