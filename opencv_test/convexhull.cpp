@@ -39,7 +39,7 @@ int main(void) {
     cap >> frame; //USBカメラが得た動画の１フレームを格納
 
     //ぼかし（ノイズ対策）
-    blur(frame, smoothed, Size(15, 15));
+    blur(frame, smoothed, Size(5, 5));
 
     //グレースケールに変換
     cvtColor(smoothed, gray, CV_BGR2GRAY);   
@@ -144,10 +144,6 @@ int main(void) {
             cout << endl;
           }
           cout << endl;
-
-          // vector<cv::Point> convh;
-          // convexHull(*cont, convh);     //凸包取得
-          // area = contourArea(convh);    //面積取得
         }
     }
 
@@ -156,7 +152,6 @@ int main(void) {
     cout << "1ループ終了" << endl;
     cout << endl;
 
-    // int key = waitKey(1000);   //キー待ち(ミリ秒)
     int key = waitKey(1);
     
     if(key == 'q') {  //qが押されたとき
