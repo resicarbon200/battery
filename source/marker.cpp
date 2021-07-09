@@ -156,6 +156,7 @@ int main(void) {
     cout << "1ループ終了" << endl;
     cout << endl;
 
+    cout << "time:" << elapsed << "ms" << endl << endl;
 
     do{
       end_time = std::chrono::system_clock::now();  // 計測終了時間
