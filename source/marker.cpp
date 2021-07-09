@@ -1,5 +1,6 @@
 #include <iostream>
 #include <bitset>
+#include <chrono>
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc.hpp>        //cvtColor
 #include <opencv2/imgproc/types_c.h>  //定数CV_**
@@ -24,31 +25,34 @@ int main(void) {
 
   const unsigned int marker = 0x9a1e;   //マーカーのデータ
   bitset<32> bs(marker);
+  std::chrono::system_clock::time_point  start_time, end_time;
+  double elapsed;
 
   Mat frame;    //1フレームの画像
-  Mat smoothed;
-  Mat gray;
-  Mat binary;
+  // Mat smoothed;
+  // Mat gray;
+  // Mat binary;
   Mat reversed;
-  Mat edge;
 
   double area;
 
   while(1)//無限ループ
   {
+    start_time = std::chrono::system_clock::now(); // 計測開始時間
+
     cap >> frame; //USBカメラが得た動画の１フレームを格納
 
     //ぼかし（ノイズ対策）
-    blur(frame, smoothed, Size(15, 15));
+    blur(frame, frame, Size(15, 15));
 
     //グレースケールに変換
-    cvtColor(smoothed, gray, CV_BGR2GRAY);   
+    cvtColor(frame, frame, CV_BGR2GRAY);   
 
     //二値化
-    threshold(gray, binary, 100, 255, THRESH_BINARY);   //第3引数が閾値
+    threshold(frame, frame, 100, 255, THRESH_BINARY);   //第3引数が閾値
 
     //反転
-    bitwise_not(binary, reversed);
+    bitwise_not(frame, reversed);
 
     //輪郭の座標リスト
     vector<vector<Point>> contours;
@@ -60,13 +64,13 @@ int main(void) {
 
     //輪郭の処理
     for(auto cont = contours.begin(); cont != contours.end(); cont++) {
-        polylines(smoothed, *cont, true, Scalar(0, 255, 0), 2);  //輪郭描画
+        // polylines(smoothed, *cont, true, Scalar(0, 255, 0), 2);  //輪郭描画
 
         vector<Point> approx;
         approxPolyDP(*cont, approx, 10, true);    //多角形近似
 
         if(approx.size() == 4) {
-          polylines(smoothed, approx, true, Scalar(255, 0, 0), 4);  //近似図形描画
+          // polylines(smoothed, approx, true, Scalar(255, 0, 0), 4);  //近似図形描画
 
           int ul, ur, ll, lr;
           Point upper, lower, lefter, righter;
@@ -111,7 +115,7 @@ int main(void) {
           for(int i = 0; i < 6; i++) {
             for(int j = 0; j < 6; j++) {
               Point p = approx[ul] + (upper * (j + 0.5) + lower * (j + 0.5) + lefter * (i + 0.5) + righter * (i + 0.5)) / 12;
-              circle(smoothed, p, 5, Scalar(0, 0, 255), -1);
+              // circle(smoothed, p, 5, Scalar(0, 0, 255), -1);
               int brightness = rev(p);    //輝度　ただし白黒反転後の値なので注意
               cout << brightness / 255 << " ";
 
@@ -144,25 +148,32 @@ int main(void) {
             cout << endl;
           }
           cout << endl;
-
-          // vector<cv::Point> convh;
-          // convexHull(*cont, convh);     //凸包取得
-          // area = contourArea(convh);    //面積取得
         }
     }
 
-    imshow("window", smoothed);   //画像を表示
+    // imshow("window", smoothed);   //画像を表示
 
     cout << "1ループ終了" << endl;
     cout << endl;
 
+
+    do{
+      end_time = std::chrono::system_clock::now();  // 計測終了時間
+      elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
+
+      cout << "time:" << elapsed << "ms" << endl << endl;
+
+      int key = waitKey(5);
+    }while(elapsed < 500);  //1ループ500ミリ秒
+
     // int key = waitKey(1000);   //キー待ち(ミリ秒)
-    int key = waitKey(1);
+    // int key = waitKey(1);
     
-    if(key == 'q') {  //qが押されたとき
-      break;//whileループから抜ける（終了）
-    }
+    // if(key == 'q') {  //qが押されたとき
+    //   break;//whileループから抜ける（終了）
+    // }
   }
   destroyAllWindows();
+  
   return 0;
 }
