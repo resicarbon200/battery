@@ -161,7 +161,7 @@ int main(void) {
       end_time = std::chrono::system_clock::now();  // 計測終了時間
       elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
 
-      cout << "time:" << elapsed << "ms" << endl << endl;
+      // cout << "time:" << elapsed << "ms" << endl << endl;
 
       int key = waitKey(5);
     }while(elapsed < 500);  //1ループ500ミリ秒
