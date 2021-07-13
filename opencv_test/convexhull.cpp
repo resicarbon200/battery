@@ -112,8 +112,15 @@ int main(void) {
             for(int j = 0; j < 6; j++) {
               Point p = approx[ul] + upper * (2 * j + 1) / 12 + (lefter * (11 - 2 * j) + righter * (2 * j + 1)) * (2 * i + 1) / 144;
               circle(smoothed, p, 5, Scalar(0, 0, 255), -1);
-              int brightness = rev(p);    //輝度　ただし白黒反転後の値なので注意
-              cout << brightness / 255 << " ";
+              
+              int brightness;
+              if(p.x < rev.cols && p.y < rev.rows){
+                brightness = rev(p);    //輝度　ただし白黒反転後の値なので注意
+                cout << brightness / 255 << " ";
+              } else {
+                brightness = -1;
+                cout << "x ";
+              }
 
               if(i == 0 || i == 5 || j == 0 || j == 5) {
                 if(brightness == 255) {
