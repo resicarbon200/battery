@@ -24,7 +24,7 @@ int main(void) {
   cout << "* Press 'q' to finish this program." << endl;
 
   const unsigned int marker = 0x9a1e;   //マーカーのデータ
-  bitset<32> bs(marker);
+  bitset<16> bs(marker);
   std::chrono::system_clock::time_point  start_time, end_time;
   double elapsed;
 
@@ -34,7 +34,7 @@ int main(void) {
   // Mat binary;
   Mat reversed;
 
-  double area;
+  //double area;
 
   while(1)//無限ループ
   {
@@ -104,6 +104,9 @@ int main(void) {
           cout << "左の辺" << lefter << endl;
           cout << "右の辺" << righter << endl;
           cout << endl;
+
+					cout << "左の辺の長さ:" << norm(lefter) << endl;
+					cout << "右の辺の長さ:" << norm(righter) << endl;
 
           cout << "1=黒/0=白の行列" << endl;
           cout << "[" << endl;
