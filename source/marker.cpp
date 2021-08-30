@@ -105,8 +105,15 @@ int main(void) {
           cout << "右の辺" << righter << endl;
           cout << endl;
 
-					cout << "左の辺の長さ:" << norm(lefter) << endl;
-					cout << "右の辺の長さ:" << norm(righter) << endl;
+					double llen, rlen, mlen;
+					llen = norm(lefter);
+					rlen = norm(righter);
+					mlen = (llen + rlen) / 2;
+
+					cout << "左の辺の長さ:" << llen << endl;
+					cout << "右の辺の長さ:" << rlen << endl;
+					cout << "平均:" << mlen << endl;
+					cout << "距離:" << 400 / mlen << endl;
 
           cout << "1=黒/0=白の行列" << endl;
           cout << "[" << endl;
