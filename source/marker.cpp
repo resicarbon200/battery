@@ -113,7 +113,7 @@ int main(void) {
           cout << "左の辺の長さ:" << llen << endl;
           cout << "右の辺の長さ:" << rlen << endl;
           cout << "平均:" << mlen << endl;
-          cout << "距離:" << 3880 / mlen + 2 << endl;
+          cout << "距離:" << 4000 / mlen - 4 << endl;
           cout << endl;
 
           cout << "1=黒/0=白の行列" << endl;
