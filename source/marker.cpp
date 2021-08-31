@@ -43,7 +43,7 @@ int main(void) {
     cap >> frame; //USBカメラが得た動画の１フレームを格納
 
     //ぼかし（ノイズ対策）
-    blur(frame, frame, Size(5, 5));
+    //blur(frame, frame, Size(5, 5));
 
     //グレースケールに変換
     cvtColor(frame, frame, CV_BGR2GRAY);   
@@ -113,7 +113,7 @@ int main(void) {
           cout << "左の辺の長さ:" << llen << endl;
           cout << "右の辺の長さ:" << rlen << endl;
           cout << "平均:" << mlen << endl;
-          cout << "距離:" << 3400 / mlen + 8 << endl;
+          cout << "距離:" << 3400 / mlen + 9 << endl;
           cout << endl;
 
           cout << "1=黒/0=白の行列" << endl;
