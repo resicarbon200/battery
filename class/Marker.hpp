@@ -15,5 +15,5 @@ public:
   ~Marker();
 
   void setMarker(unsigned int);
-	void calcPos();
+  void calcPos();
 };

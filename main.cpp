@@ -5,12 +5,12 @@
 #include <ctime>
 
 void msleep(int ms) {
-	struct timespec ts;
+  struct timespec ts;
 
-	ts.tv_sec = ms / 1000;
-	ts.tv_nsec = (ms % 1000) * 1000000;
+  ts.tv_sec = ms / 1000;
+  ts.tv_nsec = (ms % 1000) * 1000000;
 
-	nanosleep(&ts, NULL);
+  nanosleep(&ts, NULL);
 }
 
 int main(void) {
@@ -21,18 +21,18 @@ int main(void) {
 
   mk.setMarker(0x9a1e);
 
-	while(1) {
+  while(1) {
     start_time = std::chrono::system_clock::now(); // 計測開始時間
-		
-		
+    
+    
 
     end_time = std::chrono::system_clock::now();  // 計測終了時間
     elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
 
-		if(elapsed >= 1) {
-			msleep(500 - elapsed);
-		}
-	}
+    if(elapsed >= 1) {
+      msleep(500 - elapsed);
+    }
+  }
 
   return 0;
 }

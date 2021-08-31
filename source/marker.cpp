@@ -49,7 +49,7 @@ int main(void) {
     cvtColor(frame, frame, CV_BGR2GRAY);   
 
     //二値化
-    threshold(frame, frame, 120, 255, THRESH_BINARY);   //第3引数が閾値
+    threshold(frame, frame, 130, 255, THRESH_BINARY);   //第3引数が閾値
 
     //反転
     bitwise_not(frame, reversed);
@@ -105,16 +105,16 @@ int main(void) {
           cout << "右の辺" << righter << endl;
           cout << endl;
 
-					double llen, rlen, mlen;
-					llen = norm(lefter);
-					rlen = norm(righter);
-					mlen = (llen + rlen) / 2;
+          double llen, rlen, mlen;
+          llen = norm(lefter);
+          rlen = norm(righter);
+          mlen = (llen + rlen) / 2;
 
-					cout << "左の辺の長さ:" << llen << endl;
-					cout << "右の辺の長さ:" << rlen << endl;
-					cout << "平均:" << mlen << endl;
-					cout << "距離:" << 3880 / mlen + 3 << endl;
-					cout << endl;
+          cout << "左の辺の長さ:" << llen << endl;
+          cout << "右の辺の長さ:" << rlen << endl;
+          cout << "平均:" << mlen << endl;
+          cout << "距離:" << 3880 / mlen + 2 << endl;
+          cout << endl;
 
           cout << "1=黒/0=白の行列" << endl;
           cout << "[" << endl;
