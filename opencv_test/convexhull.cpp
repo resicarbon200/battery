@@ -42,7 +42,8 @@ int main(void) {
     //blur(frame, smoothed, Size(5, 5));
 
     //グレースケールに変換
-    cvtColor(smoothed, gray, CV_BGR2GRAY);   
+    //cvtColor(smoothed, gray, CV_BGR2GRAY);   
+    cvtColor(frame, gray, CV_BGR2GRAY);   
 
     //二値化
     threshold(gray, binary, 100, 255, THRESH_BINARY);   //第3引数が閾値
