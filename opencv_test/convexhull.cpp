@@ -39,7 +39,7 @@ int main(void) {
     cap >> frame; //USBカメラが得た動画の１フレームを格納
 
     //ぼかし（ノイズ対策）
-    blur(frame, smoothed, Size(5, 5));
+    //blur(frame, smoothed, Size(5, 5));
 
     //グレースケールに変換
     cvtColor(smoothed, gray, CV_BGR2GRAY);   
