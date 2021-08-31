@@ -49,7 +49,7 @@ int main(void) {
     cvtColor(frame, frame, CV_BGR2GRAY);   
 
     //二値化
-    threshold(frame, frame, 100, 255, THRESH_BINARY);   //第3引数が閾値
+    threshold(frame, frame, 120, 255, THRESH_BINARY);   //第3引数が閾値
 
     //反転
     bitwise_not(frame, reversed);
