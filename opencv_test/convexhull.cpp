@@ -155,7 +155,8 @@ int main(void) {
         }
     }
 
-    imshow("window", smoothed);   //画像を表示
+    //imshow("window", smoothed);   //画像を表示
+    imshow("window", frame);   //画像を表示
 
     cout << "1ループ終了" << endl;
     cout << endl;
