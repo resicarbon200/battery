@@ -2,6 +2,7 @@
 #include <bitset>
 #include <chrono>
 #include <ctime>
+#include <cmath>
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc.hpp>        //cvtColor
 #include <opencv2/imgproc/types_c.h>  //定数CV_**
@@ -124,6 +125,7 @@ int main(void) {
           cout << "右の辺の長さ:" << rlen << endl;
           cout << "平均:" << mlen << endl;
           cout << "距離:" << 2900 / mlen + 5 << "cm" << endl;
+          cout << "角度:" << asin(((2900 / rlen) - (2900 / llen)) / 6) * 180 / M_PI << endl;
           cout << endl;
 
           cout << "1=黒/0=白の行列" << endl;
