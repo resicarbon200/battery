@@ -1,6 +1,7 @@
 #include <iostream>
 #include <bitset>
 #include <chrono>
+#include <ctime>
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc.hpp>        //cvtColor
 #include <opencv2/imgproc/types_c.h>  //定数CV_**
@@ -8,6 +9,15 @@
 
 using namespace cv;
 using namespace std;
+
+void msleep(int ms) {
+  struct timespec ts;
+
+  ts.tv_sec = ms / 1000;
+  ts.tv_nsec = (ms % 1000) * 1000000;
+
+  nanosleep(&ts, NULL);
+}
 
 int main(void) {
   cout << "* PROGRAM START" << endl;
@@ -179,14 +189,9 @@ int main(void) {
 
     cout << "time:" << elapsed << "ms" << endl << endl;
 
-    do{
-      end_time = std::chrono::system_clock::now();  // 計測終了時間
-      elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
-
-      // cout << "time:" << elapsed << "ms" << endl << endl;
-
-      waitKey(5);
-    }while(elapsed < 500);  //1ループ500ミリ秒
+    if(elapsed >= 1) {
+      msleep(500 - elapsed);
+    }
 
     // int key = waitKey(1000);   //キー待ち(ミリ秒)
     // int key = waitKey(1);
