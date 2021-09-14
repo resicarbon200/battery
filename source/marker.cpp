@@ -182,8 +182,8 @@ int main(void) {
         }
     }
 
-    // imshow("window", frame);   //画像を表示
-    // waitKey(1);
+    imshow("window", frame);   //画像を表示
+    waitKey(1);
 
     cout << "1ループ終了" << endl;
     cout << endl;
