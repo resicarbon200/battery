@@ -54,14 +54,14 @@ int main(void) {
     cap >> frame; //USBカメラが得た動画の１フレームを格納
 
     //ぼかし（ノイズ対策）
-    blur(frame, frame, Size(2, 2));
+    //blur(frame, frame, Size(2, 2));
 
     //グレースケールに変換
     cvtColor(frame, frame, CV_BGR2GRAY);   
 
     //二値化
     //threshold(frame, frame, 110, 255, THRESH_BINARY);   //第3引数が閾値
-    adaptiveThreshold(frame, frame, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 61, 10);   //第3引数が閾値
+    adaptiveThreshold(frame, frame, 255, ADAPTIVE_THRESH_MEAN_C, THRESH_BINARY, 61, 10);   //第3引数が閾値
 
     //反転
     bitwise_not(frame, reversed);
