@@ -186,6 +186,8 @@ int main(void) {
     cout << "1ループ終了" << endl;
     cout << endl;
 
+    imshow("window", frame);   //画像を表示
+
     end_time = std::chrono::system_clock::now();  // 計測終了時間
     elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
 
