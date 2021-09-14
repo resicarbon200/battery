@@ -61,7 +61,7 @@ int main(void) {
 
     //二値化
     //threshold(frame, frame, 110, 255, THRESH_BINARY);   //第3引数が閾値
-    adaptiveThreshold(frame, frame, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 121, 2);   //第3引数が閾値
+    adaptiveThreshold(frame, frame, 255, ADAPTIVE_THRESH_MEAN_C, THRESH_BINARY, 121, 2);   //第3引数が閾値
 
     //反転
     bitwise_not(frame, reversed);
