@@ -60,7 +60,8 @@ int main(void) {
     cvtColor(frame, frame, CV_BGR2GRAY);   
 
     //二値化
-    threshold(frame, frame, 110, 255, THRESH_BINARY);   //第3引数が閾値
+    //threshold(frame, frame, 110, 255, THRESH_BINARY);   //第3引数が閾値
+    adaptiveThreshold(frame, frame, 255, ADAPTIVE_THRESH_GAUSSIAN_C. THRESH_BINARY, 50, 10);   //第3引数が閾値
 
     //反転
     bitwise_not(frame, reversed);
