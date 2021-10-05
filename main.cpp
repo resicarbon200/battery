@@ -30,6 +30,8 @@ int main(void) {
     
     pm = std::move(mk.processing());
 
+    std::cout << pm->getDepth() << std::endl;
+
     pm.reset();
 
     end_time = std::chrono::system_clock::now();  // 計測終了時間
