@@ -16,7 +16,7 @@ BINARYS :=opencv_test/convexhull.bin source/marker.bin main.bin
 
 all: $(BINARYS) $(OBJECTS)
 
-main.bin: main.o class/Marker.o
+main.bin: main.o class/Marker.o class/PosMarker.o
 	$(CXX) -w $^ $(CXXFLAGS) -o $@
 
 %.bin: %.o

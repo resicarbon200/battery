@@ -76,110 +76,110 @@ int main(void) {
 
     //輪郭の処理
     for(auto cont = contours.begin(); cont != contours.end(); cont++) {
-        // polylines(smoothed, *cont, true, Scalar(0, 255, 0), 2);  //輪郭描画
+      // polylines(smoothed, *cont, true, Scalar(0, 255, 0), 2);  //輪郭描画
 
-        vector<Point> approx;
-        approxPolyDP(*cont, approx, 10, true);    //多角形近似
+      vector<Point> approx;
+      approxPolyDP(*cont, approx, 10, true);    //多角形近似
 
-        if(approx.size() == 4) {
-          // polylines(smoothed, approx, true, Scalar(255, 0, 0), 4);  //近似図形描画
+      if(approx.size() == 4) {
+        // polylines(smoothed, approx, true, Scalar(255, 0, 0), 4);  //近似図形描画
 
-          int ul, ur, ll, lr;
-          Point upper, lower, lefter, righter;
+        int ul, ur, ll, lr;
+        Point upper, lower, lefter, righter;
 
-          //左上の頂点を探す
-          int min = INT_MAX;
-          for(int i = 0; i < 4; i++) {
-            int sum = approx[i].x + approx[i].y;
-            if(sum < min){
-              min = sum;
-              ul = i;   //左上 UpperLeft
-            }
+        //左上の頂点を探す
+        int min = INT_MAX;
+        for(int i = 0; i < 4; i++) {
+          int sum = approx[i].x + approx[i].y;
+          if(sum < min){
+            min = sum;
+            ul = i;   //左上 UpperLeft
           }
+        }
 
-          ll = (ul + 1) % 4;  //LowerLeft
-          lr = (ul + 2) % 4;  //LowerRight
-          ur = (ul + 3) % 4;  //UpperRight
+        ll = (ul + 1) % 4;  //LowerLeft
+        lr = (ul + 2) % 4;  //LowerRight
+        ur = (ul + 3) % 4;  //UpperRight
 
-          upper = approx[ur] - approx[ul];
-          lower = approx[lr] - approx[ll];
-          lefter = approx[ll] - approx[ul];
-          righter = approx[lr] - approx[ur];
+        upper = approx[ur] - approx[ul];
+        lower = approx[lr] - approx[ll];
+        lefter = approx[ll] - approx[ul];
+        righter = approx[lr] - approx[ur];
 
-          cout << "********************" << endl;
+        cout << "********************" << endl;
 
-          cout << "中心座標" << approx[0] + approx[1] + approx[2] + approx[3] / 4 << endl;
-          cout << endl;
+        cout << "中心座標" << approx[0] + approx[1] + approx[2] + approx[3] / 4 << endl;
+        cout << endl;
 
-          cout << "上の辺" << upper << endl;
-          cout << "下の辺" << lower << endl;
-          cout << "左の辺" << lefter << endl;
-          cout << "右の辺" << righter << endl;
-          cout << endl;
+        cout << "上の辺" << upper << endl;
+        cout << "下の辺" << lower << endl;
+        cout << "左の辺" << lefter << endl;
+        cout << "右の辺" << righter << endl;
+        cout << endl;
 
-          double llen, rlen, mlen;
-          llen = norm(lefter);
-          rlen = norm(righter);
-          mlen = (llen + rlen) / 2;
+        double llen, rlen, mlen;
+        llen = norm(lefter);
+        rlen = norm(righter);
+        mlen = (llen + rlen) / 2;
 
-          cout << "左の辺の長さ:" << llen << endl;
-          cout << "右の辺の長さ:" << rlen << endl;
-          cout << "平均:" << mlen << endl;
-          cout << "距離:" << 2900 / mlen + 5 << "cm" << endl;
-          cout << "角度:" << asin(((2900 / rlen) - (2900 / llen)) / 6) * 180 / M_PI << endl;
-          cout << endl;
+        cout << "左の辺の長さ:" << llen << endl;
+        cout << "右の辺の長さ:" << rlen << endl;
+        cout << "平均:" << mlen << endl;
+        cout << "距離:" << 2900 / mlen + 5 << "cm" << endl;
+        cout << "角度:" << asin(((2900 / rlen) - (2900 / llen)) / 6) * 180 / M_PI << endl;
+        cout << endl;
 
-          cout << "1=黒/0=白の行列" << endl;
-          cout << "[" << endl;
+        cout << "1=黒/0=白の行列" << endl;
+        cout << "[" << endl;
 
-          int cnt_outer = 0;
-          int cnt_black = 0;
-          int cnt_white = 0;
+        int cnt_outer = 0;
+        int cnt_black = 0;
+        int cnt_white = 0;
 
-          for(int i = 0; i < 6; i++) {
-            for(int j = 0; j < 6; j++) {
-              Point p = approx[ul] + upper * (2 * j + 1) / 12 + (lefter * (11 - 2 * j) + righter * (2 * j + 1)) * (2 * i + 1) / 144;
-              // circle(smoothed, p, 5, Scalar(0, 0, 255), -1);
-              
-              int brightness;
-              if(p.x < rev.cols && p.y < rev.rows){
-                brightness = rev(p);    //輝度　ただし白黒反転後の値なので注意
-                cout << brightness / 255 << " ";
-              } else {
-                brightness = -1;
-                cout << "x ";
+        for(int i = 0; i < 6; i++) {
+          for(int j = 0; j < 6; j++) {
+            Point p = approx[ul] + upper * (2 * j + 1) / 12 + (lefter * (11 - 2 * j) + righter * (2 * j + 1)) * (2 * i + 1) / 144;
+            // circle(smoothed, p, 5, Scalar(0, 0, 255), -1);
+            
+            int brightness;
+            if(p.x < rev.cols && p.y < rev.rows){
+              brightness = rev(p);    //輝度　ただし白黒反転後の値なので注意
+              cout << brightness / 255 << " ";
+            } else {
+              brightness = -1;
+              cout << "x ";
+            }
+
+            if(i == 0 || i == 5 || j == 0 || j == 5) {
+              if(brightness == 255) {
+                cnt_outer++;
               }
-
-              if(i == 0 || i == 5 || j == 0 || j == 5) {
-                if(brightness == 255) {
-                  cnt_outer++;
-                }
-              }else if((marker >> (4 - i) * 4 + (4 - j)) & 1u != 0) {
-                if(brightness == 255) {
-                  cnt_black++;
-                }
-              }else {
-                if(brightness == 0) {
-                  cnt_white++;
-                }
+            }else if((marker >> (4 - i) * 4 + (4 - j)) & 1u != 0) {
+              if(brightness == 255) {
+                cnt_black++;
+              }
+            }else {
+              if(brightness == 0) {
+                cnt_white++;
               }
             }
-            cout << endl;
-          }
-
-          cout << "]" << endl;
-
-          cout << "枠一致率:" << cnt_outer << "/" << 20 << endl;
-          cout << "黒一致率:" << cnt_black << "/" << bs.count() << endl;
-          cout << "白一致率:" << cnt_white << "/" << 16 - bs.count() << endl;
-
-          if(cnt_outer / 20.0 > 0.8 && cnt_black / (float)bs.count() > 0.8 && cnt_white / (float)bs.count() > 0.8) {
-            cout << "\033[1;5;33m HIT \033[m" << endl;
-          } else {
-            cout << endl;
           }
           cout << endl;
         }
+
+        cout << "]" << endl;
+
+        cout << "枠一致率:" << cnt_outer << "/" << 20 << endl;
+        cout << "黒一致率:" << cnt_black << "/" << bs.count() << endl;
+        cout << "白一致率:" << cnt_white << "/" << 16 - bs.count() << endl;
+
+        if(cnt_outer / 20.0 > 0.8 && cnt_black / (float)bs.count() > 0.8 && cnt_white / (float)bs.count() > 0.8) {
+          cout << "\033[1;5;33m HIT \033[m" << endl;
+        } else {
+          cout << endl;
+        }
+        cout << endl;
+      }
     }
 
     imshow("window", frame);   //画像を表示

@@ -1,8 +1,10 @@
 #include "class/Marker.hpp"
+#include "class/PosMarker.hpp"
 
 #include <iostream>
 #include <chrono>
 #include <ctime>
+#include <memory>
 
 void msleep(int ms) {
   struct timespec ts;
@@ -21,10 +23,14 @@ int main(void) {
 
   mk.setMarker(0x9a1e);
 
+  std::unique_ptr<PosMarker> pm;
+
   while(1) {
     start_time = std::chrono::system_clock::now(); // 計測開始時間
     
-    
+    pm = std::move(mk.processing());
+
+    pm.reset();
 
     end_time = std::chrono::system_clock::now();  // 計測終了時間
     elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();

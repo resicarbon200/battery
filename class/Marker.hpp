@@ -1,8 +1,10 @@
 #pragma once
 
 #include <bitset>
+#include <memory>
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui.hpp>
+#include "PosMarker.hpp"
 
 class Marker {
   cv::VideoCapture cap; //カメラ
@@ -15,5 +17,5 @@ public:
   ~Marker();
 
   void setMarker(unsigned int);
-  void calcPos();
+  std::unique_ptr<PosMarker> processing();
 };
