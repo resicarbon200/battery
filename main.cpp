@@ -30,7 +30,7 @@ int main(void) {
     
     pm = std::move(mk.processing());
 
-    std::cout << pm->getDepth() << std::endl;
+    //std::cout << pm->getDepth() << std::endl;
 
     pm.reset();
 
