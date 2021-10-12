@@ -60,13 +60,13 @@ unique_ptr<PosMarker> Marker::processing() {
   Mat1b rev = reversed;    //Mat1bに変換
 
   //輪郭の処理
-  for(auto cont = contours.begin(); cont != contours.end(); cont++) {
+  for (auto cont = contours.begin(); cont != contours.end(); cont++) {
     // polylines(smoothed, *cont, true, Scalar(0, 255, 0), 2);  //輪郭描画
 
     vector<Point> approx;
     approxPolyDP(*cont, approx, 10, true);    //多角形近似
 
-    if(approx.size() == 4) {
+    if (approx.size() == 4) {
       // polylines(smoothed, approx, true, Scalar(255, 0, 0), 4);  //近似図形描画
 
       int ul, ur, ll, lr;
@@ -91,12 +91,12 @@ unique_ptr<PosMarker> Marker::processing() {
       int cnt_black = 0;
       int cnt_white = 0;
 
-      for(int i = 0; i < 6; i++) {
-        for(int j = 0; j < 6; j++) {
+      for (int i = 0; i < 6; i++) {
+        for (int j = 0; j < 6; j++) {
           Point p = approx[ul] + pm->getUpper() * (2 * j + 1) / 12 + (pm->getLefter() * (11 - 2 * j) + pm->getRighter() * (2 * j + 1)) * (2 * i + 1) / 144;
           
           int brightness;
-          if(p.x < rev.cols && p.y < rev.rows){
+          if (p.x < rev.cols && p.y < rev.rows){
             brightness = rev(p);    //輝度　ただし白黒反転後の値なので注意
             // cout << brightness / 255 << " ";
           } else {
@@ -104,16 +104,16 @@ unique_ptr<PosMarker> Marker::processing() {
             // cout << "x ";
           }
 
-          if(i == 0 || i == 5 || j == 0 || j == 5) {
+          if (i == 0 || i == 5 || j == 0 || j == 5) {
             if(brightness == 255) {
               cnt_outer++;
             }
-          }else if((marker >> (4 - i) * 4 + (4 - j)) & 1u != 0) {
+          } else if ((marker >> (4 - i) * 4 + (4 - j)) & 1u != 0) {
             if(brightness == 255) {
               cnt_black++;
             }
-          }else {
-            if(brightness == 0) {
+          } else {
+            if (brightness == 0) {
               cnt_white++;
             }
           }
@@ -127,7 +127,7 @@ unique_ptr<PosMarker> Marker::processing() {
       // cout << "黒一致率:" << cnt_black << "/" << bs.count() << endl;
       // cout << "白一致率:" << cnt_white << "/" << 16 - bs.count() << endl;
 
-      if(cnt_outer / 20.0 > 0.8 && cnt_black / (float)bs.count() > 0.8 && cnt_white / (float)bs.count() > 0.8) {
+      if (cnt_outer / 20.0 > 0.8 && cnt_black / (float)bs.count() > 0.8 && cnt_white / (float)bs.count() > 0.8) {
         return pm;
         // cout << "\033[1;5;33m HIT \033[m" << endl;
       }
