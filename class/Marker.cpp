@@ -24,6 +24,8 @@ Marker::Marker() {
     exit(-1);
   }
   cout << "succeed." << endl;
+
+  cap.set(cv::CAP_PROP_BUFFERSIZE, 1);
 }
 
 Marker::~Marker() {

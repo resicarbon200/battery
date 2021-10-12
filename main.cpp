@@ -32,6 +32,8 @@ int main(void) {
 
     if (pm != nullptr) {
       std::cout << pm->getDepth() << std::endl;
+    } else {
+      std::cout << "?" << std::endl;
     }
 
     pm.reset();
