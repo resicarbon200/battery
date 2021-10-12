@@ -11,7 +11,7 @@ SOURCES :=$(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.cpp))
 OBJECTS :=$(SOURCES:.cpp=.o)
 # C++ファイルの.cppを.binに変えたものを実行ファイルの名前とする
 #BINARYS :=$(SOURCES:.cpp=.bin)
-BINARYS :=opencv_test/convexhull.bin source/marker.bin main.bin
+BINARYS :=opencv_test/convexhull.bin main.bin
 
 
 all: $(BINARYS) $(OBJECTS)
