@@ -31,7 +31,9 @@ int main(void) {
     pm = std::move(mk.processing());
 
     if (pm != nullptr) {
-      std::cout << pm->getDepth() << std::endl;
+      std::cout << pm->getDepth() << std::endl;   //距離を表示
+      // std::cout <<< pm->getAngle() << std::endl;   //角度を表示
+      // std::cout <<< pm->getDeflec() << std::endl;  //中心座標が右寄りなら正の数，左よりなら負の数を表示
     } else {
       std::cout << "?" << std::endl;
     }
