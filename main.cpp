@@ -5,6 +5,7 @@
 #include <chrono>
 #include <ctime>
 #include <memory>
+#include <WiringPiI2C.h>
 
 void msleep(int ms) {
   struct timespec ts;
