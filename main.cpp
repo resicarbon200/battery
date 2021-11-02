@@ -30,7 +30,7 @@ int main(void) {
   int ID = 0x04;
   int fd = wiringPiI2CSetup(ID);
 
-  while(1) {
+  while (1) {
     start_time = std::chrono::system_clock::now(); // 計測開始時間
     
     pm = std::move(mk.processing());
@@ -48,7 +48,9 @@ int main(void) {
     end_time = std::chrono::system_clock::now();  // 計測終了時間
     elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
 
-    wiringPiI2CWriteReg8(fd, 0x00, 0x52);
+    if ((wiringPiI2CWriteReg8(fd, 0x00, 0x52)) < 0){
+      printf("write error");
+    }
 
     if(elapsed >= 1) {
       msleep(500 - elapsed);
