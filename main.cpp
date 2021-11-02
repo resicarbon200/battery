@@ -5,7 +5,6 @@
 #include <chrono>
 #include <ctime>
 #include <memory>
-#include <wiringPi.h>
 #include <wiringPiI2C.h>
 
 void msleep(int ms) {
@@ -48,7 +47,7 @@ int main(void) {
     end_time = std::chrono::system_clock::now();  // 計測終了時間
     elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
 
-    wiringPiI2CWriteReg8(fd, 0x40, 'R');
+    wiringPiI2CWriteReg8(fd, 0x00, 0x52);
 
     if(elapsed >= 1) {
       msleep(500 - elapsed);
