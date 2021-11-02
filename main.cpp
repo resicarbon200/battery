@@ -5,6 +5,7 @@
 #include <chrono>
 #include <ctime>
 #include <memory>
+#include <wiringPi.h>
 #include <wiringPiI2C.h>
 
 void msleep(int ms) {
