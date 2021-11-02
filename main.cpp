@@ -48,7 +48,7 @@ int main(void) {
     end_time = std::chrono::system_clock::now();  // 計測終了時間
     elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
 
-    wiringPiI2CWriteReg8(fd, 0, 'R');
+    wiringPiI2CWriteReg8(fd, 0x40, 'R');
 
     if(elapsed >= 1) {
       msleep(500 - elapsed);
