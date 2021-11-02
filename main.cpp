@@ -26,6 +26,9 @@ int main(void) {
 
   std::unique_ptr<PosMarker> pm;
 
+  int ID = 0x04;
+  int fd = wiringPiI2CSetup(ID);
+
   while(1) {
     start_time = std::chrono::system_clock::now(); // 計測開始時間
     
@@ -43,6 +46,8 @@ int main(void) {
 
     end_time = std::chrono::system_clock::now();  // 計測終了時間
     elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
+
+    wiringPiI2CWriteReg8(fd, 0, 'R');
 
     if(elapsed >= 1) {
       msleep(500 - elapsed);
