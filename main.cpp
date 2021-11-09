@@ -26,8 +26,8 @@ int main(void) {
 
   std::unique_ptr<PosMarker> pm;
 
-  int ID = 0x11;
-  int fd = wiringPiI2CSetup(ID);
+  // int ID = 0x11;
+  // int fd = wiringPiI2CSetup(ID);
 
   while (1) {
     start_time = std::chrono::system_clock::now(); // 計測開始時間
@@ -44,21 +44,21 @@ int main(void) {
 
     pm.reset();
 
-    if (pm->getDeflec() > 0.5) {
-      if ((wiringPiI2CWriteReg8(fd, 0x00, 0x0a)) < 0){
-        std::cout << "write error" << std::endl;
-      } else {
-        std::cout << "write \"0x0a\"" << std::endl;
-      }
-    }
+    // if (pm->getDeflec() > 0.5) {
+    //   if ((wiringPiI2CWriteReg8(fd, 0x00, 0x0a)) < 0){
+    //     std::cout << "write error" << std::endl;
+    //   } else {
+    //     std::cout << "write \"0x0a\"" << std::endl;
+    //   }
+    // }
 
-    if (pm->getDeflec() < -0.5) {
-      if ((wiringPiI2CWriteReg8(fd, 0x00, 0x09)) < 0){
-        std::cout << "write error" << std::endl;
-      } else {
-        std::cout << "write \"0x09\"" << std::endl;
-      }
-    }
+    // if (pm->getDeflec() < -0.5) {
+    //   if ((wiringPiI2CWriteReg8(fd, 0x00, 0x09)) < 0){
+    //     std::cout << "write error" << std::endl;
+    //   } else {
+    //     std::cout << "write \"0x09\"" << std::endl;
+    //   }
+    // }
 
     end_time = std::chrono::system_clock::now();  // 計測終了時間
     elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
