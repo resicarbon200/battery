@@ -9,14 +9,13 @@ SOURCES :=$(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.cpp))
 # C++ファイルの.cppを.oに変えたものをオブジェクトファイルの名前とする
 OBJECTS :=$(SOURCES:.cpp=.o)
 # C++ファイルの.cppを.binに変えたものを実行ファイルの名前とする
-BINARYS :=main.bin $(filter %test/%, $(SOURCES:.cpp=.bin))
+BINARYS :=main.bin $(filter .//test/%, $(SOURCES:.cpp=.bin))
 #BINARYS :=test/convexhull.bin main.bin
 
 
 all: $(BINARYS) $(OBJECTS)
 
 main.bin: main.o class/Marker.o class/PosMarker.o
-	echo $(BINARYS)
 	$(CXX) -w $^ $(CXXFLAGS) -o $@
 
 %.bin: %.o
@@ -27,3 +26,7 @@ main.bin: main.o class/Marker.o class/PosMarker.o
 
 clean:
 	rm -rf $(BINARYS) $(OBJECTS)
+
+echo:
+	echo $(SOURCES)
+	echo $(BINARYS)
