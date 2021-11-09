@@ -16,6 +16,7 @@ BINARYS :=main.bin $(filter .//test/%, $(SOURCES:.cpp=.bin))
 all: $(BINARYS) $(OBJECTS)
 
 main.bin: main.o class/Marker.o class/PosMarker.o
+	echo $(BINARYS)
 	$(CXX) -w $^ $(CXXFLAGS) -o $@
 
 %.bin: %.o
