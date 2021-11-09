@@ -21,7 +21,8 @@ int main(void) {
 
   Marker mk;
 
-  mk.setMarker(0x9a1e);
+  // mk.setMarker(0x9a1e);    //黒マーカー
+  mk.setMarker(0x2a69);     //赤マーカー
 
   std::unique_ptr<PosMarker> pm;
 

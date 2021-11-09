@@ -43,15 +43,17 @@ unique_ptr<PosMarker> Marker::processing() {
   //ぼかし（ノイズ対策）
   blur(frame, frame, Size(2, 2));
 
-  //グレースケールに変換
-  cvtColor(frame, frame, CV_BGR2GRAY);   
+  // //グレースケールに変換
+  // cvtColor(frame, frame, CV_BGR2GRAY);   
 
-  //二値化
-  //threshold(frame, frame, 110, 255, THRESH_BINARY);   //第3引数が閾値
-  adaptiveThreshold(frame, frame, 255, ADAPTIVE_THRESH_MEAN_C, THRESH_BINARY, 91, 4);   //第3引数が閾値
+  // //二値化
+  // //threshold(frame, frame, 110, 255, THRESH_BINARY);   //第3引数が閾値
+  // adaptiveThreshold(frame, frame, 255, ADAPTIVE_THRESH_MEAN_C, THRESH_BINARY, 91, 4);   //第3引数が閾値
 
-  //反転
-  bitwise_not(frame, reversed);
+  // //反転
+  // bitwise_not(frame, reversed);
+
+  reversed = Mat::zeros(cv::Size(frame.cols, frame.rows), CV_8UC1);
 
   //輪郭の座標リスト
   vector<vector<Point>> contours;
