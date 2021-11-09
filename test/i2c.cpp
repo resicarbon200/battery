@@ -6,7 +6,7 @@ int main(void) {
   int fd = wiringPiI2CSetup(ID);
 
   // while (1) {
-    if ((wiringPiI2CWriteReg8(fd, 0x00, 0x01)) < 0){
+    if ((wiringPiI2CWriteReg8(fd, 0x00, 0x09)) < 0){
       std::cout << "write error" << std::endl;
     } else {
       std::cout << "write \"0x01\"" << std::endl;
