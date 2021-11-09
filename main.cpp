@@ -5,8 +5,6 @@
 #include <chrono>
 #include <ctime>
 #include <memory>
-#include <wiringPi.h>
-#include <wiringPiI2C.h>
 
 void msleep(int ms) {
   struct timespec ts;
@@ -26,9 +24,6 @@ int main(void) {
   mk.setMarker(0x9a1e);
 
   std::unique_ptr<PosMarker> pm;
-
-  int ID = 0x04;
-  int fd = wiringPiI2CSetup(ID);
 
   while (1) {
     start_time = std::chrono::system_clock::now(); // 計測開始時間
