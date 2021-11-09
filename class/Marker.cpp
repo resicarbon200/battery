@@ -129,6 +129,9 @@ unique_ptr<PosMarker> Marker::processing() {
       // cout << "黒一致率:" << cnt_black << "/" << bs.count() << endl;
       // cout << "白一致率:" << cnt_white << "/" << 16 - bs.count() << endl;
 
+      cout << frame.cols() << endl;
+      cout << frame.rows() << endl;
+
       if (cnt_outer / 20.0 > 0.8 && cnt_black / (float)bs.count() > 0.8 && cnt_white / (float)bs.count() > 0.8) {
         return pm;
         // cout << "\033[1;5;33m HIT \033[m" << endl;
