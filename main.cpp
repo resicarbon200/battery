@@ -39,21 +39,21 @@ int main(void) {
       // std::cout << pm->getAngle() << std::endl;   //角度を表示
       std::cout << pm->getDeflec() << std::endl;  //中心座標が右寄りなら正の数，左よりなら負の数を表示
 
-      // if (pm->getDeflec() > 0.5) {
-      //   if ((wiringPiI2CWriteReg8(fd, 0x00, 0x0a)) < 0){
-      //     std::cout << "write error" << std::endl;
-      //   } else {
-      //     std::cout << "write \"0x0a\"" << std::endl;
-      //   }
-      // }
+      if (pm->getDeflec() > 0.45) {
+        if ((wiringPiI2CWriteReg8(fd, 0x00, 0x0a)) < 0){
+          std::cout << "write error" << std::endl;
+        } else {
+          std::cout << "write \"0x0a\"" << std::endl;
+        }
+      }
 
-      // if (pm->getDeflec() < -0.5) {
-      //   if ((wiringPiI2CWriteReg8(fd, 0x00, 0x09)) < 0){
-      //     std::cout << "write error" << std::endl;
-      //   } else {
-      //     std::cout << "write \"0x09\"" << std::endl;
-      //   }
-      // }
+      if (pm->getDeflec() < -0.45) {
+        if ((wiringPiI2CWriteReg8(fd, 0x00, 0x09)) < 0){
+          std::cout << "write error" << std::endl;
+        } else {
+          std::cout << "write \"0x09\"" << std::endl;
+        }
+      }
     } else {
       std::cout << "?" << std::endl;
     }
