@@ -22,7 +22,7 @@ PosMarker::PosMarker(Point ul, Point ur, Point ll, Point lr) {
   depth = 2900 / mlen + 5;
   angle = asin(((2900 / rlen) - (2900 / llen)) / 6) * 180 / M_PI;
 
-  deflec = (ul.x + ur.x + ll.x + lr.x) / 1920.0 - 1; //FHDなので横幅1920px
+  deflec = (ul.x + ur.x + ll.x + lr.x) / (4.0 * 320) - 1; //横幅640px
 }
 
 cv::Point PosMarker::getUpper() { return upper; }
