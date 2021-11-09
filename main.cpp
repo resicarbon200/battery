@@ -36,8 +36,8 @@ int main(void) {
 
     if (pm != nullptr) {
       // std::cout << pm->getDepth() << std::endl;   //距離を表示
-      // std::cout <<< pm->getAngle() << std::endl;   //角度を表示
-      std::cout <<< pm->getDeflec() << std::endl;  //中心座標が右寄りなら正の数，左よりなら負の数を表示
+      // std::cout << pm->getAngle() << std::endl;   //角度を表示
+      std::cout << pm->getDeflec() << std::endl;  //中心座標が右寄りなら正の数，左よりなら負の数を表示
 
       // if (pm->getDeflec() > 0.5) {
       //   if ((wiringPiI2CWriteReg8(fd, 0x00, 0x0a)) < 0){
