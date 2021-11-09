@@ -45,10 +45,6 @@ int main(void) {
 
     pm.reset();
 
-    if ((wiringPiI2CWriteReg8(fd, 0x04, 0x52)) < 0){
-      printf("write error");
-    }
-
     end_time = std::chrono::system_clock::now();  // 計測終了時間
     elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
 
