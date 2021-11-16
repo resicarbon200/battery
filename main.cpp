@@ -7,10 +7,10 @@
 #include <memory>
 #include <wiringPiI2C.h>
 
-const float TAR_DEPTH = 20.0;   //目標距離
+const float TAR_DEPTH = 25.0;   //目標距離
 const float TOL_DEPTH = 2.0;    //距離許容差
 const float TOL_ANGLE = 20.0;   //角度許容差
-const float TOL_DEFLEC = 0.3;   //カメラ角度許容差
+const float TOL_DEFLEC = 0.1;   //カメラ角度許容差
 
 void msleep(int ms) {
   struct timespec ts;
