@@ -7,7 +7,9 @@
 #include <memory>
 #include <wiringPiI2C.h>
 
-const float CAMERA_DEF = 0.3;
+const float TAR_DEPTH = 20.0;   //目標距離
+const float TOL_DEPTH = 2.0;    //距離許容差
+const float TOL_DEFLEC = 0.3;   //カメラ角度許容差
 
 void msleep(int ms) {
   struct timespec ts;
@@ -31,39 +33,57 @@ int main(void) {
   int ID = 0x11;
   int fd = wiringPiI2CSetup(ID);
 
-  signed char ret;
+  signed char ret;    //Arduino返答(回転角度/4.5)
 
   while (1) {
     start_time = std::chrono::system_clock::now(); // 計測開始時間
     
     pm = std::move(mk.processing());
 
+
+    ret = wiringPiI2CReadReg8(fd, 0x11);
+    std::cout << "\t" << (int)ret << std::endl;
+
     if (pm != nullptr) {
       // std::cout << pm->getDepth() << std::endl;   //距離を表示
       // std::cout << pm->getAngle() << std::endl;   //角度を表示
       std::cout << pm->getDeflec();  //中心座標が右寄りなら正の数，左よりなら負の数を表示
 
-      if (pm->getDeflec() > CAMERA_DEF) {
-        if ((wiringPiI2CWriteReg8(fd, 0x00, 0x0a)) < 0){
+      if (pm->getDepth() > TAR_DEPTH + TOL_DEPTH) {     //マーカーが遠いとき
+        if ((wiringPiI2CWriteReg8(fd, 0x00, 0x01)) < 0){
           std::cout << "write error" << std::endl;
         } else {
           // std::cout << "write \"0x0a\"" << std::endl;
         }
       }
 
-      if (pm->getDeflec() < -CAMERA_DEF) {
-        if ((wiringPiI2CWriteReg8(fd, 0x00, 0x09)) < 0){
+      if (pm->getDepth() > TAR_DEPTH - TOL_DEPTH) {     //マーカーが近いとき
+        if ((wiringPiI2CWriteReg8(fd, 0x00, 0x02)) < 0){
           std::cout << "write error" << std::endl;
         } else {
-          // std::cout << "write \"0x09\"" << std::endl;
+          // std::cout << "write \"0x0a\"" << std::endl;
         }
       }
+
+      // if (pm->getDeflec() > CAMERA_DEF) {     //マーカーが視界右方のとき
+      //   if ((wiringPiI2CWriteReg8(fd, 0x00, 0x0a)) < 0){
+      //     std::cout << "write error" << std::endl;
+      //   } else {
+      //     // std::cout << "write \"0x0a\"" << std::endl;
+      //   }
+      // }
+
+      // if (pm->getDeflec() < -CAMERA_DEF) {     //マーカーが視界左方のとき
+      //   if ((wiringPiI2CWriteReg8(fd, 0x00, 0x09)) < 0){
+      //     std::cout << "write error" << std::endl;
+      //   } else {
+      //     // std::cout << "write \"0x09\"" << std::endl;
+      //   }
+      // }
     } else {
       std::cout << "?";
     }
 
-    ret = wiringPiI2CReadReg8(fd, 0x11);
-    std::cout << "\t" << (int)ret << std::endl;
 
     pm.reset();
 
