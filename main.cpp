@@ -9,7 +9,7 @@
 
 const float TAR_DEPTH = 20.0;   //目標距離
 const float TOL_DEPTH = 2.0;    //距離許容差
-const float TOL_ANGLE = 10.0;   //角度許容差
+const float TOL_ANGLE = 20.0;   //角度許容差
 const float TOL_DEFLEC = 0.3;   //カメラ角度許容差
 
 void msleep(int ms) {
@@ -55,7 +55,7 @@ int main(void) {
 
       if (-TOL_ANGLE < pm->getAngle() && pm->getAngle() < TOL_ANGLE) {    //マーカーが移動体の方を向いているとき
 
-        if (ret = 0) {    //カメラが移動体の正面方向を向いているとき
+        if (ret == 0) {    //カメラが移動体の正面方向を向いているとき
 
           if (pm->getDepth() > TAR_DEPTH + TOL_DEPTH) {     //マーカーが遠いとき
             if ((wiringPiI2CWriteReg8(fd, 0x00, 0x01)) < 0){

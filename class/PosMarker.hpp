@@ -14,8 +14,8 @@ class PosMarker {
   float llen;		//左辺長さ
   float rlen;		//右辺長さ
   float mlen;		//2辺の長さの平均
-  float depth;	//距離
-  float angle;	//マーカ面の角度(左向きが負　右向きが正)
+  float depth;	//距離 [cm]
+  float angle;	//マーカ面の角度(左向きが負　右向きが正) [度]
   float deflec;	//映像中のマーカ位置(左寄りが負　右寄りが正)
   
   PosMarker();  //デフォルトコンストラクタの禁止
