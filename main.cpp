@@ -59,11 +59,11 @@ int main(void) {
         }
       }
     } else {
-      std::cout << "?" << std::endl;
+      std::cout << "?";
     }
 
     ret = wiringPiI2CReadReg8(fd, 0x11);
-    std::cout << ret << std::endl;
+    std::cout << "\" << ret << std::endl;
 
     pm.reset();
 
