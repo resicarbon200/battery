@@ -57,7 +57,7 @@ int main(void) {
         }
       }
 
-      if (pm->getDepth() > TAR_DEPTH - TOL_DEPTH) {     //マーカーが近いとき
+      if (pm->getDepth() < TAR_DEPTH - TOL_DEPTH) {     //マーカーが近いとき
         if ((wiringPiI2CWriteReg8(fd, 0x00, 0x02)) < 0){
           std::cout << "write error" << std::endl;
         } else {
