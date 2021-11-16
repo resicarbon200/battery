@@ -31,6 +31,8 @@ int main(void) {
   int ID = 0x11;
   int fd = wiringPiI2CSetup(ID);
 
+  int ret;
+
   while (1) {
     start_time = std::chrono::system_clock::now(); // 計測開始時間
     
@@ -39,7 +41,7 @@ int main(void) {
     if (pm != nullptr) {
       // std::cout << pm->getDepth() << std::endl;   //距離を表示
       // std::cout << pm->getAngle() << std::endl;   //角度を表示
-      std::cout << pm->getDeflec() << std::endl;  //中心座標が右寄りなら正の数，左よりなら負の数を表示
+      std::cout << pm->getDeflec();  //中心座標が右寄りなら正の数，左よりなら負の数を表示
 
       if (pm->getDeflec() > CAMERA_DEF) {
         if ((wiringPiI2CWriteReg8(fd, 0x00, 0x0a)) < 0){
@@ -59,6 +61,9 @@ int main(void) {
     } else {
       std::cout << "?" << std::endl;
     }
+
+    ret = wiringPiI2CReadReg8(fd, 0x11);
+    std::cout << ret << std::endl;
 
     pm.reset();
 
