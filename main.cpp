@@ -51,6 +51,64 @@ int main(void) {
       std::cout << pm->getDeflec();  //中心座標が右寄りなら正の数，左よりなら負の数を表示
 
       //============================================================
+      //移動制御
+
+      if (-TOL_ANGLE < pm->getAngle() && pm->getAngle() < TOL_ANGLE) {    //マーカーが移動体の方を向いているとき
+
+        if (-1 < ret && ret < 1) {    //カメラが移動体の正面方向を向いているとき
+
+          if (pm->getDepth() > TAR_DEPTH + TOL_DEPTH) {     //マーカーが遠いとき
+            if ((wiringPiI2CWriteReg8(fd, 0x00, 0x01)) < 0){
+              std::cout << "write error" << std::endl;
+            } else {
+              // std::cout << "write \"0x01\"" << std::endl;
+            }
+          }
+
+          if (pm->getDepth() < TAR_DEPTH - TOL_DEPTH) {     //マーカーが近いとき
+            if ((wiringPiI2CWriteReg8(fd, 0x00, 0x02)) < 0){
+              std::cout << "write error" << std::endl;
+            } else {
+              // std::cout << "write \"0x0a\"" << std::endl;
+            }
+          }
+
+        } else {    //カメラが移動体の正面方向を向いていないとき
+
+          if (ret < 0) {     //カメラが右を向いているとき
+            if ((wiringPiI2CWriteReg8(fd, 0x00, 0x04)) < 0){  //右旋回
+              std::cout << "write error" << std::endl;
+            } else {
+              // std::cout << "write \"0x04\"" << std::endl;
+            }
+
+            if ((wiringPiI2CWriteReg8(fd, 0x00, 0x09)) < 0){  //カメラ左回転
+              std::cout << "write error" << std::endl;
+            } else {
+              // std::cout << "write \"0x09\"" << std::endl;
+            }
+          }
+          
+          if (ret > 0) {     //カメラが左を向いているとき
+            if ((wiringPiI2CWriteReg8(fd, 0x00, 0x03)) < 0){  //左旋回
+              std::cout << "write error" << std::endl;
+            } else {
+              // std::cout << "write \"0x03\"" << std::endl;
+            }
+
+            if ((wiringPiI2CWriteReg8(fd, 0x00, 0x0a)) < 0){  //カメラ右回転
+              std::cout << "write error" << std::endl;
+            } else {
+              // std::cout << "write \"0x0a\"" << std::endl;
+            }
+          }
+        }
+
+      } else { //マーカーが移動体の方を向いていないとき
+
+      }
+
+      //============================================================
       //カメラ回転
 
       if (pm->getDeflec() > TOL_DEFLEC) {     //マーカーが視界右方のとき
@@ -59,57 +117,13 @@ int main(void) {
         } else {
           // std::cout << "write \"0x0a\"" << std::endl;
         }
-      } else if (pm->getDeflec() < -TOL_DEFLEC) {     //マーカーが視界左方のとき
+      }
+
+      if (pm->getDeflec() < -TOL_DEFLEC) {     //マーカーが視界左方のとき
         if ((wiringPiI2CWriteReg8(fd, 0x00, 0x09)) < 0){
           std::cout << "write error" << std::endl;
         } else {
           // std::cout << "write \"0x09\"" << std::endl;
-        }
-      } else {
-        //============================================================
-        //移動制御
-
-        if (-TOL_ANGLE < pm->getAngle() && pm->getAngle() < TOL_ANGLE) {    //マーカーが移動体の方を向いているとき
-
-          if (-1 < ret && ret < 1) {    //カメラが移動体の正面方向を向いているとき
-
-            if (pm->getDepth() > TAR_DEPTH + TOL_DEPTH) {     //マーカーが遠いとき
-              if ((wiringPiI2CWriteReg8(fd, 0x00, 0x01)) < 0){
-                std::cout << "write error" << std::endl;
-              } else {
-                // std::cout << "write \"0x01\"" << std::endl;
-              }
-            }
-
-            if (pm->getDepth() < TAR_DEPTH - TOL_DEPTH) {     //マーカーが近いとき
-              if ((wiringPiI2CWriteReg8(fd, 0x00, 0x02)) < 0){
-                std::cout << "write error" << std::endl;
-              } else {
-                // std::cout << "write \"0x0a\"" << std::endl;
-              }
-            }
-
-          } else {    //カメラが移動体の正面方向を向いていないとき
-
-            if (ret < 0) {     //カメラが右を向いているとき
-              if ((wiringPiI2CWriteReg8(fd, 0x00, 0x04)) < 0){
-                std::cout << "write error" << std::endl;
-              } else {
-                // std::cout << "write \"0x04\"" << std::endl;
-              }
-            }
-            
-            if (ret > 0) {     //カメラが左を向いているとき
-              if ((wiringPiI2CWriteReg8(fd, 0x00, 0x03)) < 0){
-                std::cout << "write error" << std::endl;
-              } else {
-                // std::cout << "write \"0x03\"" << std::endl;
-              }
-            }
-          }
-
-        } else { //マーカーが移動体の方を向いていないとき
-
         }
       }
 
