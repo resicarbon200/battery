@@ -7,6 +7,8 @@
 #include <memory>
 #include <wiringPiI2C.h>
 
+const float CAMERA_DEF = 0.3;
+
 void msleep(int ms) {
   struct timespec ts;
 
@@ -39,7 +41,7 @@ int main(void) {
       // std::cout << pm->getAngle() << std::endl;   //角度を表示
       std::cout << pm->getDeflec() << std::endl;  //中心座標が右寄りなら正の数，左よりなら負の数を表示
 
-      if (pm->getDeflec() > 0.45) {
+      if (pm->getDeflec() > CAMERA_DEF) {
         if ((wiringPiI2CWriteReg8(fd, 0x00, 0x0a)) < 0){
           std::cout << "write error" << std::endl;
         } else {
@@ -47,7 +49,7 @@ int main(void) {
         }
       }
 
-      if (pm->getDeflec() < -0.45) {
+      if (pm->getDeflec() < -CAMERA_DEF) {
         if ((wiringPiI2CWriteReg8(fd, 0x00, 0x09)) < 0){
           std::cout << "write error" << std::endl;
         } else {
