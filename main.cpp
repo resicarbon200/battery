@@ -54,6 +54,7 @@ int main(void) {
       //移動制御
 
       if (-TOL_ANGLE < pm->getAngle() && pm->getAngle() < TOL_ANGLE) {    //マーカーが移動体の方を向いているとき
+
         if (ret = 0) {    //カメラが移動体の正面方向を向いているとき
 
           if (pm->getDepth() > TAR_DEPTH + TOL_DEPTH) {     //マーカーが遠いとき
@@ -89,6 +90,7 @@ int main(void) {
               // std::cout << "write \"0x03\"" << std::endl;
             }
           }
+        }
 
       } else { //マーカーが移動体の方を向いていないとき
 
@@ -97,7 +99,7 @@ int main(void) {
       //============================================================
       //カメラ回転
 
-      if (pm->getDeflec() > CAMERA_DEF) {     //マーカーが視界右方のとき
+      if (pm->getDeflec() > TOL_DEFLEC) {     //マーカーが視界右方のとき
         if ((wiringPiI2CWriteReg8(fd, 0x00, 0x0a)) < 0){
           std::cout << "write error" << std::endl;
         } else {
@@ -105,7 +107,7 @@ int main(void) {
         }
       }
 
-      if (pm->getDeflec() < -CAMERA_DEF) {     //マーカーが視界左方のとき
+      if (pm->getDeflec() < -TOL_DEFLEC) {     //マーカーが視界左方のとき
         if ((wiringPiI2CWriteReg8(fd, 0x00, 0x09)) < 0){
           std::cout << "write error" << std::endl;
         } else {
