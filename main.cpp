@@ -47,7 +47,7 @@ int main(void) {
         if ((wiringPiI2CWriteReg8(fd, 0x00, 0x0a)) < 0){
           std::cout << "write error" << std::endl;
         } else {
-          std::cout << "write \"0x0a\"" << std::endl;
+          // std::cout << "write \"0x0a\"" << std::endl;
         }
       }
 
@@ -55,7 +55,7 @@ int main(void) {
         if ((wiringPiI2CWriteReg8(fd, 0x00, 0x09)) < 0){
           std::cout << "write error" << std::endl;
         } else {
-          std::cout << "write \"0x09\"" << std::endl;
+          // std::cout << "write \"0x09\"" << std::endl;
         }
       }
     } else {
