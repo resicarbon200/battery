@@ -58,7 +58,7 @@ int main(void) {
         if (-1 < ret && ret < 1) {    //カメラが移動体の正面方向を向いているとき
 
           if (pm->getDepth() > TAR_DEPTH + TOL_DEPTH) {     //マーカーが遠いとき
-            if ((wiringPiI2CWriteReg8(fd, 0x00, 0x01)) < 0){
+            if ((wiringPiI2CWriteReg8(fd, 0x00, 0x01)) < 0){  //前進
               std::cout << "write error" << std::endl;
             } else {
               // std::cout << "write \"0x01\"" << std::endl;
@@ -66,10 +66,10 @@ int main(void) {
           }
 
           if (pm->getDepth() < TAR_DEPTH - TOL_DEPTH) {     //マーカーが近いとき
-            if ((wiringPiI2CWriteReg8(fd, 0x00, 0x02)) < 0){
+            if ((wiringPiI2CWriteReg8(fd, 0x00, 0x02)) < 0){  //後退
               std::cout << "write error" << std::endl;
             } else {
-              // std::cout << "write \"0x0a\"" << std::endl;
+              // std::cout << "write \"0x02\"" << std::endl;
             }
           }
 
@@ -105,6 +105,56 @@ int main(void) {
         }
 
       } else { //マーカーが移動体の方を向いていないとき
+
+        if ((90 - pm->getAngle()) / 2.7 - 2 < ret && ret < (90 - pm->getAngle()) / 2.7 + 2) {   //Arduinoの定数stepsに合わせて変更
+
+          if (pm->getAngle() > TOL_ANGLE) {
+            if ((wiringPiI2CWriteReg8(fd, 0x00, 0x01)) < 0){  //前進
+              std::cout << "write error" << std::endl;
+            } else {
+              // std::cout << "write \"0x01\"" << std::endl;
+            }
+          }
+
+          if (pm->getAngle() < -TOL_ANGLE) {
+            if ((wiringPiI2CWriteReg8(fd, 0x00, 0x02)) < 0){  //後退
+              std::cout << "write error" << std::endl;
+            } else {
+              // std::cout << "write \"0x02\"" << std::endl;
+            }
+          }
+
+        } else {
+
+          if (ret < (90 - pm->getAngle()) / 2.7) {     //移動体が進行方向より左向きのとき
+            if ((wiringPiI2CWriteReg8(fd, 0x00, 0x04)) < 0){  //右旋回
+              std::cout << "write error" << std::endl;
+            } else {
+              // std::cout << "write \"0x04\"" << std::endl;
+            }
+
+            if ((wiringPiI2CWriteReg8(fd, 0x00, 0x09)) < 0){  //カメラ左回転
+              std::cout << "write error" << std::endl;
+            } else {
+              // std::cout << "write \"0x09\"" << std::endl;
+            }
+          }
+          
+          if (ret > (90 - pm->getAngle()) / 2.7) {     //移動体が進行方向より右向きのとき
+            if ((wiringPiI2CWriteReg8(fd, 0x00, 0x03)) < 0){  //左旋回
+              std::cout << "write error" << std::endl;
+            } else {
+              // std::cout << "write \"0x03\"" << std::endl;
+            }
+
+            if ((wiringPiI2CWriteReg8(fd, 0x00, 0x0a)) < 0){  //カメラ右回転
+              std::cout << "write error" << std::endl;
+            } else {
+              // std::cout << "write \"0x0a\"" << std::endl;
+            }
+          }
+          
+        }
 
       }
 
