@@ -66,7 +66,7 @@ int main(void) {
     elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
 
     if(elapsed >= 1) {
-      msleep(500 - elapsed);
+      msleep(100 - elapsed);
     }
   }
 
