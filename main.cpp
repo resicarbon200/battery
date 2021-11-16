@@ -63,7 +63,7 @@ int main(void) {
     }
 
     ret = wiringPiI2CReadReg8(fd, 0x11);
-    std::cout << "\" << ret << std::endl;
+    std::cout << "\t" << ret << std::endl;
 
     pm.reset();
 
