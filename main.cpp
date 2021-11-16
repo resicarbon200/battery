@@ -55,7 +55,7 @@ int main(void) {
 
       if (-TOL_ANGLE < pm->getAngle() && pm->getAngle() < TOL_ANGLE) {    //マーカーが移動体の方を向いているとき
 
-        if (ret == 0) {    //カメラが移動体の正面方向を向いているとき
+        if (-1 < ret && ret < 1) {    //カメラが移動体の正面方向を向いているとき
 
           if (pm->getDepth() > TAR_DEPTH + TOL_DEPTH) {     //マーカーが遠いとき
             if ((wiringPiI2CWriteReg8(fd, 0x00, 0x01)) < 0){
