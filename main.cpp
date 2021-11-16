@@ -31,7 +31,7 @@ int main(void) {
   int ID = 0x11;
   int fd = wiringPiI2CSetup(ID);
 
-  int ret;
+  signed char ret;
 
   while (1) {
     start_time = std::chrono::system_clock::now(); // 計測開始時間
@@ -63,7 +63,7 @@ int main(void) {
     }
 
     ret = wiringPiI2CReadReg8(fd, 0x11);
-    std::cout << "\t" << ret << std::endl;
+    std::cout << "\t" << (int)ret << std::endl;
 
     pm.reset();
 
