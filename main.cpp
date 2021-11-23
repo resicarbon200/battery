@@ -9,10 +9,11 @@
 
 const float TAR_DEPTH = 25.0;   //目標距離 [cm]
 const float TOL_DEPTH = 2.0;    //距離許容差 [cm]
-const float TOL_ANGLE = 20.0;   //角度許容差 [度]
+const float TOL_ANGLE_LOOSE = 20.0;   //おおらかな角度許容差 [度]
+const float TOL_ANGLE_STRICT = 10.0;   //厳密な角度許容差 [度]
 const float TOL_DEFLEC = 0.1;   //カメラ角度許容差
 
-void msleep(int ms) {
+void msleep(int ms) {   //ミリ秒スリープ
   struct timespec ts;
 
   ts.tv_sec = ms / 1000;
@@ -27,19 +28,21 @@ int main(void) {
 
   Marker mk;
 
-  mk.setMarker(0x9a1e);
+  mk.setMarker(0x9a1e);   //探すマーカーの模様を16進数4桁で設定
 
-  std::unique_ptr<PosMarker> pm;
+  std::unique_ptr<PosMarker> pm;  //スマートポインタ
 
-  int ID = 0x11;
+  int ID = 0x11;                    //ArduinoのID
   int fd = wiringPiI2CSetup(ID);
 
   signed char ret;    //Arduino返答(回転角度/4.5)
 
+  float tol_angle = TOL_ANGLE_STRICT;    //角度許容差
+
   while (1) {
-    start_time = std::chrono::system_clock::now(); // 計測開始時間
+    start_time = std::chrono::system_clock::now(); //計測開始時間
     
-    pm = std::move(mk.processing());
+    pm = std::move(mk.processing());  //processingで作ったスマートポインタの所有権を移動する
 
 
     ret = wiringPiI2CReadReg8(fd, 0x11);
@@ -53,7 +56,8 @@ int main(void) {
       //============================================================
       //移動制御
 
-      if (-TOL_ANGLE < pm->getAngle() && pm->getAngle() < TOL_ANGLE) {    //マーカーが移動体の方を向いているとき
+      if (-tol_angle < pm->getAngle() && pm->getAngle() < tol_angle) {    //マーカーが移動体の方を向いているとき
+        tol_angle = TOL_ANGLE_LOOSE;
 
         if (-1 < ret && ret < 1) {    //カメラが移動体の正面方向を向いているとき
 
@@ -74,6 +78,7 @@ int main(void) {
           }
 
         } else {    //カメラが移動体の正面方向を向いていないとき
+          tol_angle = TOL_ANGLE_STRICT;
 
           if (ret < 0) {     //カメラが右を向いているとき
             if ((wiringPiI2CWriteReg8(fd, 0x00, 0x04)) < 0){  //右旋回
@@ -108,7 +113,7 @@ int main(void) {
 
         if ((90 - pm->getAngle()) / 2.7 - 2 < ret && ret < (90 - pm->getAngle()) / 2.7 + 2) {   //Arduinoの定数stepsに合わせて変更
 
-          if (pm->getAngle() > TOL_ANGLE) {
+          if (pm->getAngle() > tol_angle) {
             if ((wiringPiI2CWriteReg8(fd, 0x00, 0x01)) < 0){  //前進
               std::cout << "write error" << std::endl;
             } else {
@@ -116,7 +121,7 @@ int main(void) {
             }
           }
 
-          if (pm->getAngle() < -TOL_ANGLE) {
+          if (pm->getAngle() < -tol_angle) {
             if ((wiringPiI2CWriteReg8(fd, 0x00, 0x02)) < 0){  //後退
               std::cout << "write error" << std::endl;
             } else {
