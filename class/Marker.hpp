@@ -1,3 +1,11 @@
+/**
+* @file Marker.hpp
+* @brief カメラでマーカーを認識するためのクラス
+*
+* @details
+* setMarker関数で設定したマーカーの位置を，processing関数でPosMarkerクラスとして得る．
+*/
+
 #pragma once
 
 #include <bitset>
@@ -7,15 +15,27 @@
 #include "PosMarker.hpp"
 
 class Marker {
-  cv::VideoCapture cap; //カメラ
-  unsigned int marker;  //マーカーのデータ
-  std::bitset<16> bs;   //16bit型
-  cv::Mat frame;      //1フレームの画像
-  cv::Mat reversed;   //2値化して反転後の画像
+  cv::VideoCapture cap; ///< カメラインスタンス
+  unsigned int marker;  ///< マーカーの模様
+  std::bitset<16> bs;   ///< 16bit型マーカーの模様
+  cv::Mat frame;      ///< 1フレームの画像
+  cv::Mat reversed;   ///< 2値化して反転後の画像
 public:
-  Marker();
-  ~Marker();
+  Marker();   ///< コンストラクタ
+  ~Marker();  ///< デストラクタ
 
-  void setMarker(unsigned int);
+  /**
+  * @brief マーカーの模様を16進数4桁で設定する．
+  * 例）setMarker(0x9a1e)
+  *
+  * @param[in] marker マーカーの模様を16進数4桁で表したもの
+  */
+  void setMarker(unsigned int marker);
+  /**
+   * @brief マーカーの位置を計算し，PosMarkerに格納し，そのスマートポインタを返す
+   * 
+   * @return std::unique_ptr<PosMarker>
+   * マーカーの位置を示すPosMarkerクラスのスマートポインタ．所有権をmoveする必要あり．
+  */
   std::unique_ptr<PosMarker> processing();
 };
