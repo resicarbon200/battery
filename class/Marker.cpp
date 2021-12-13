@@ -43,6 +43,8 @@ unique_ptr<PosMarker> Marker::processing() {
   //ぼかし（ノイズ対策）
   blur(frame, frame, Size(2, 2));
 
+  //白黒マーカー版
+  /*
   //グレースケールに変換
   cvtColor(frame, frame, CV_BGR2GRAY);   
 
@@ -52,6 +54,32 @@ unique_ptr<PosMarker> Marker::processing() {
 
   //反転
   bitwise_not(frame, reversed);
+  */
+
+  Vec3b *pbgr;  //カラー画素(青緑赤)
+  unsigned char *pgray;   //グレースケール画素
+  //赤色マーカー版
+  reversed = Mat::zeros(cv::Size(frame.cols, frame.rows), CV_8UC1);
+  for (int j = 0; j < frame.rows; j++) {
+    pbgr = frame.ptr<Vec3b>(j);
+    pgray = reversed.ptr<unsigned char>(j);
+    for (int i = 0; i < frame.cols; i++) {
+      if ((*pbgr)[2] / ((*pbgr)[0] + (*pbgr)[1] + 20.0) >= 0.58) {
+        *pgray = 255;
+      } else {
+        *pgray = 0;
+      }
+      ++pbgr;
+      ++pgray;
+    }
+  }
+
+  // imshow("red", reversed);
+  // int key = waitKey(1);
+  // if (key == 'q') {
+  //   destroyAllWindows();
+  //   exit(0);
+  // }
 
   //輪郭の座標リスト
   vector<vector<Point>> contours;
