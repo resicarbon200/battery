@@ -11,11 +11,11 @@
 #include <errno.h>
 #include <unistd.h>
 
-const float TAR_DEPTH = 25.0;   //目標距離 [cm]
-const float TOL_DEPTH = 2.0;    //距離許容差 [cm]
+const float TAR_DEPTH = 13.0;   //目標距離 [cm]
+const float TOL_DEPTH = 1.0;    //距離許容差 [cm]
 const float TOL_ANGLE_LOOSE = 20.0;   //おおらかな角度許容差 [度]
-const float TOL_ANGLE_STRICT = 10.0;   //厳密な角度許容差 [度]
-const float TOL_DEFLEC = 0.1;   //カメラ角度許容差
+const float TOL_ANGLE_STRICT = 8.0;   //厳密な角度許容差 [度]
+const float TOL_DEFLEC = 0.2;   //カメラ映像中のズレ許容差
 
 void msleep(int ms) {   //ミリ秒スリープ
   struct timespec ts;
@@ -88,7 +88,7 @@ int main(void) {
         if (-tol_angle < pm->getAngle() && pm->getAngle() < tol_angle) {    //マーカーが移動体の方を向いているとき
           tol_angle = TOL_ANGLE_LOOSE;
 
-          if (-1 < ret && ret < 1) {    //カメラが移動体の正面方向を向いているとき
+          if (0 <= ret && ret <= 0) {    //カメラが移動体の正面方向を向いているとき
 
             if (pm->getDepth() > TAR_DEPTH + TOL_DEPTH) {     //マーカーが遠いとき
               if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x01)) < 0){  //前進
@@ -223,7 +223,7 @@ int main(void) {
       elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
 
       if(elapsed >= 1) {
-        msleep(100 - elapsed);
+        msleep(300 - elapsed);
       }
 
       if (read(fd_button, buf, 13) != 0) {  //停止ボタン
