@@ -19,8 +19,8 @@ PosMarker::PosMarker(Point ul, Point ur, Point ll, Point lr) {
   rlen = norm(righter);
   mlen = (llen + rlen) / 2;
 
-  depth = 2900 / mlen + 5;
-  angle = asin(((2900 / rlen) - (2900 / llen)) / 6) * 180 / M_PI;
+  depth = PARAM_D / mlen + 5;
+  angle = asin(((PARAM_D / rlen) - (PARAM_D / llen)) / 6) * 180 / M_PI;
 
   deflec = (ul.x + ur.x + ll.x + lr.x) / (4.0 * 320) - 1; //横幅640px
 }

@@ -38,6 +38,9 @@ void Marker::setMarker(unsigned int marker) {
 }
 
 unique_ptr<PosMarker> Marker::processing() {
+  cv::Mat frame;     // 1フレームの画像
+  cv::Mat reversed;  // 2値化して反転後の画像
+
   cap >> frame; //USBカメラが得た動画の１フレームを格納
 
   //ぼかし（ノイズ対策）
@@ -159,7 +162,7 @@ unique_ptr<PosMarker> Marker::processing() {
       // cout << "黒一致率:" << cnt_black << "/" << bs.count() << endl;
       // cout << "白一致率:" << cnt_white << "/" << 16 - bs.count() << endl;
 
-      if (cnt_outer / 20.0 > 0.8 && cnt_black / (float)bs.count() > 0.8 && cnt_white / (float)bs.count() > 0.8) {
+      if (cnt_outer / 20.0 > ACCURACY && cnt_black / (float)bs.count() > ACCURACY && cnt_white / (float)bs.count() > ACCURACY) {
         return pm;
         // cout << "\033[1;5;33m HIT \033[m" << endl;
       }

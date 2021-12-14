@@ -15,11 +15,11 @@
 #include "PosMarker.hpp"
 
 class Marker {
+  const float ACCURACY = 0.8; ///< マーカーの色一致率(0~1) 大きいほど誤りに厳しい
+
   cv::VideoCapture cap; ///< カメラインスタンス
   unsigned int marker;  ///< マーカーの模様
   std::bitset<16> bs;   ///< 16bit型マーカーの模様
-  cv::Mat frame;      ///< 1フレームの画像
-  cv::Mat reversed;   ///< 2値化して反転後の画像
 public:
   Marker();   ///< コンストラクタ
   ~Marker();  ///< デストラクタ
