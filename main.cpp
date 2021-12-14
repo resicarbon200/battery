@@ -11,13 +11,27 @@
 #include <errno.h>
 #include <unistd.h>
 
+
 const float TAR_DEPTH = 13.0;   //目標距離 [cm]
 const float TOL_DEPTH = 1.0;    //距離許容差 [cm]
-const float TOL_ANGLE_LOOSE = 20.0;   //おおらかな角度許容差 [度]
-const float TOL_ANGLE_STRICT = 8.0;   //厳密な角度許容差 [度]
+const float TOL_ANGLE_LOOSE = 10.0;   //粗い角度許容差 [度]
+const float TOL_ANGLE_STRICT = 5.0;   //厳密な角度許容差 [度]
 const float TOL_DEFLEC = 0.2;   //カメラ映像中のズレ許容差
+const int STEPS = 3; //Arduinoの定数stepsに合わせて変更
+
+typedef enum ctrl_state {   //制御の状態
+  VERTICAL,     //垂直移動
+  ROT_VERT,     //垂直方向に回転
+  PARARELL,     //平行移動
+  ROT_PARA,     //平行方向に回転
+  STOP          //停止
+} ctrl_state;
 
 void msleep(int ms) {   //ミリ秒スリープ
+  if (ms <= 0) {
+    return;
+  }
+
   struct timespec ts;
 
   ts.tv_sec = ms / 1000;
@@ -25,6 +39,7 @@ void msleep(int ms) {   //ミリ秒スリープ
 
   nanosleep(&ts, NULL);
 }
+
 
 int main(void) {
   std::chrono::system_clock::time_point  start_time, end_time;  //時間計測用
@@ -40,9 +55,10 @@ int main(void) {
   int ID = 0x11;                    //ArduinoのID
   int fd_motor = wiringPiI2CSetup(ID);
 
-  signed char ret;    //Arduino返答(回転角度/4.5)
+  signed char cam_rot;    //Arduino返答(回転角度/(0.9*STEPS))
 
   float tol_angle = TOL_ANGLE_STRICT;    //角度許容差
+  ctrl_state cstate;          //制御の状態
 
   //============================================================
   //
@@ -74,8 +90,8 @@ int main(void) {
       pm = std::move(mk.processing());  //processingで作ったスマートポインタの所有権を移動する
 
 
-      ret = wiringPiI2CRead(fd_motor);
-      std::cout << "\t" << (int)ret << std::endl;
+      cam_rot = wiringPiI2CRead(fd_motor);
+      std::cout << "\t" << (int)cam_rot << std::endl;
 
       if (pm != nullptr) {
         // std::cout << pm->getDepth() << std::endl;   //距離を表示
@@ -84,110 +100,115 @@ int main(void) {
 
         //============================================================
         //移動制御
+        //============================================================
+        //垂直移動
+        if (ctrl_state == VERTICAL) {
+          if (-tol_angle < pm->getAngle() && pm->getAngle() < tol_angle) {    //マーカーが移動体の方を向いているとき
+            tol_angle = TOL_ANGLE_LOOSE;
 
-        if (-tol_angle < pm->getAngle() && pm->getAngle() < tol_angle) {    //マーカーが移動体の方を向いているとき
-          tol_angle = TOL_ANGLE_LOOSE;
+            if (cam_rot == 0) {    //カメラが移動体の正面方向を向いているとき
 
-          if (0 <= ret && ret <= 0) {    //カメラが移動体の正面方向を向いているとき
+              if (pm->getDepth() > TAR_DEPTH + TOL_DEPTH) {     //マーカーが遠いとき
+                if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x01)) < 0){  //前進
+                  std::cout << "write error" << std::endl;
+                } else {
+                  // std::cout << "write \"0x01\"" << std::endl;
+                }
+              }
 
-            if (pm->getDepth() > TAR_DEPTH + TOL_DEPTH) {     //マーカーが遠いとき
-              if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x01)) < 0){  //前進
-                std::cout << "write error" << std::endl;
-              } else {
-                // std::cout << "write \"0x01\"" << std::endl;
+              if (pm->getDepth() < TAR_DEPTH - TOL_DEPTH) {     //マーカーが近いとき
+                if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x02)) < 0){  //後退
+                  std::cout << "write error" << std::endl;
+                } else {
+                  // std::cout << "write \"0x02\"" << std::endl;
+                }
+              }
+
+            } else {    //カメラが移動体の正面方向を向いていないとき
+              ctrl_state = 
+
+              if (cam_rot < 0) {     //カメラが右を向いているとき
+                if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x04)) < 0){  //右旋回
+                  std::cout << "write error" << std::endl;
+                } else {
+                  // std::cout << "write \"0x04\"" << std::endl;
+                }
+
+                if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x09)) < 0){  //カメラ左回転
+                  std::cout << "write error" << std::endl;
+                } else {
+                  // std::cout << "write \"0x09\"" << std::endl;
+                }
+              }
+              
+              if (cam_rot > 0) {     //カメラが左を向いているとき
+                if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x03)) < 0){  //左旋回
+                  std::cout << "write error" << std::endl;
+                } else {
+                  // std::cout << "write \"0x03\"" << std::endl;
+                }
+
+                if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x0a)) < 0){  //カメラ右回転
+                  std::cout << "write error" << std::endl;
+                } else {
+                  // std::cout << "write \"0x0a\"" << std::endl;
+                }
               }
             }
 
-            if (pm->getDepth() < TAR_DEPTH - TOL_DEPTH) {     //マーカーが近いとき
-              if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x02)) < 0){  //後退
-                std::cout << "write error" << std::endl;
-              } else {
-                // std::cout << "write \"0x02\"" << std::endl;
-              }
-            }
-
-          } else {    //カメラが移動体の正面方向を向いていないとき
+          } else { //マーカーが移動体の方を向いていないとき
             tol_angle = TOL_ANGLE_STRICT;
-
-            if (ret < 0) {     //カメラが右を向いているとき
-              if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x04)) < 0){  //右旋回
-                std::cout << "write error" << std::endl;
-              } else {
-                // std::cout << "write \"0x04\"" << std::endl;
-              }
-
-              if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x09)) < 0){  //カメラ左回転
-                std::cout << "write error" << std::endl;
-              } else {
-                // std::cout << "write \"0x09\"" << std::endl;
-              }
-            }
             
-            if (ret > 0) {     //カメラが左を向いているとき
-              if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x03)) < 0){  //左旋回
-                std::cout << "write error" << std::endl;
-              } else {
-                // std::cout << "write \"0x03\"" << std::endl;
+            if ((90 - pm->getAngle()) / (0.9 * STEPS) - 2 < cam_rot && cam_rot < (90 - pm->getAngle()) / (0.9 * STEPS) + 2) {
+
+              if (pm->getAngle() > tol_angle) {
+                if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x01)) < 0){  //前進
+                  std::cout << "write error" << std::endl;
+                } else {
+                  // std::cout << "write \"0x01\"" << std::endl;
+                }
               }
 
-              if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x0a)) < 0){  //カメラ右回転
-                std::cout << "write error" << std::endl;
-              } else {
-                // std::cout << "write \"0x0a\"" << std::endl;
+              if (pm->getAngle() < -tol_angle) {
+                if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x02)) < 0){  //後退
+                  std::cout << "write error" << std::endl;
+                } else {
+                  // std::cout << "write \"0x02\"" << std::endl;
+                }
               }
+
+            } else {
+
+              if (cam_rot < (90 - pm->getAngle()) / (0.9 * STEPS)) {     //移動体が進みたい方向より左向きのとき
+                if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x04)) < 0){  //右旋回
+                  std::cout << "write error" << std::endl;
+                } else {
+                  // std::cout << "write \"0x04\"" << std::endl;
+                }
+
+                if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x09)) < 0){  //カメラ左回転
+                  std::cout << "write error" << std::endl;
+                } else {
+                  // std::cout << "write \"0x09\"" << std::endl;
+                }
+              }
+              
+              if (cam_rot > (90 - pm->getAngle()) / (0.9 * STEPS)) {     //移動体が進みたい方向より右向きのとき
+                if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x03)) < 0){  //左旋回
+                  std::cout << "write error" << std::endl;
+                } else {
+                  // std::cout << "write \"0x03\"" << std::endl;
+                }
+
+                if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x0a)) < 0){  //カメラ右回転
+                  std::cout << "write error" << std::endl;
+                } else {
+                  // std::cout << "write \"0x0a\"" << std::endl;
+                }
+              }
+              
             }
-          }
 
-        } else { //マーカーが移動体の方を向いていないとき
-
-          if ((90 - pm->getAngle()) / 2.7 - 2 < ret && ret < (90 - pm->getAngle()) / 2.7 + 2) {   //Arduinoの定数stepsに合わせて変更
-
-            if (pm->getAngle() > tol_angle) {
-              if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x01)) < 0){  //前進
-                std::cout << "write error" << std::endl;
-              } else {
-                // std::cout << "write \"0x01\"" << std::endl;
-              }
-            }
-
-            if (pm->getAngle() < -tol_angle) {
-              if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x02)) < 0){  //後退
-                std::cout << "write error" << std::endl;
-              } else {
-                // std::cout << "write \"0x02\"" << std::endl;
-              }
-            }
-
-          } else {
-
-            if (ret < (90 - pm->getAngle()) / 2.7) {     //移動体が進行方向より左向きのとき
-              if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x04)) < 0){  //右旋回
-                std::cout << "write error" << std::endl;
-              } else {
-                // std::cout << "write \"0x04\"" << std::endl;
-              }
-
-              if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x09)) < 0){  //カメラ左回転
-                std::cout << "write error" << std::endl;
-              } else {
-                // std::cout << "write \"0x09\"" << std::endl;
-              }
-            }
-            
-            if (ret > (90 - pm->getAngle()) / 2.7) {     //移動体が進行方向より右向きのとき
-              if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x03)) < 0){  //左旋回
-                std::cout << "write error" << std::endl;
-              } else {
-                // std::cout << "write \"0x03\"" << std::endl;
-              }
-
-              if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x0a)) < 0){  //カメラ右回転
-                std::cout << "write error" << std::endl;
-              } else {
-                // std::cout << "write \"0x0a\"" << std::endl;
-              }
-            }
-            
           }
 
         }
