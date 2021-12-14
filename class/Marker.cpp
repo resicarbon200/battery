@@ -1,6 +1,7 @@
 #include "Marker.hpp"
 
 #include <iostream>
+#include <algorithm>
 #include <bitset>
 #include <memory>
 #include <opencv2/opencv.hpp>
@@ -68,7 +69,9 @@ unique_ptr<PosMarker> Marker::processing() {
     pbgr = frame.ptr<Vec3b>(j);
     pgray = reversed.ptr<unsigned char>(j);
     for (int i = 0; i < frame.cols; i++) {
-      if ((*pbgr)[2] / ((*pbgr)[0] + (*pbgr)[1] + 20.0) >= 0.58) {
+      float H = ((*pbgr)[1] - (*pbgr)[0]) / (2.0 * (*pbgr)[2] - (*pbgr)[0] - (*pbgr)[1]); //色相
+      float S = ((*pbgr)[2] - std::min((*pbgr)[0], (*pbgr)[1])) / ((*pbgr)[2] + 1.0);    //彩度
+      if (-0.4 < H && H < 0.4 && S > 0.2) {
         *pgray = 255;
       } else {
         *pgray = 0;
@@ -79,12 +82,12 @@ unique_ptr<PosMarker> Marker::processing() {
   }
   */
 
-  // imshow("red", reversed);
-  // int key = waitKey(1);
-  // if (key == 'q') {
-  //   destroyAllWindows();
-  //   exit(0);
-  // }
+  imshow("red", reversed);
+  int key = waitKey(300);
+  if (key == 'q') {
+    destroyAllWindows();
+    exit(0);
+  }
 
   //輪郭の座標リスト
   vector<vector<Point>> contours;
