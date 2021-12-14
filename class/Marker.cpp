@@ -44,7 +44,7 @@ unique_ptr<PosMarker> Marker::processing() {
   blur(frame, frame, Size(2, 2));
 
   //白黒マーカー版
-  /*
+  // /*
   //グレースケールに変換
   cvtColor(frame, frame, CV_BGR2GRAY);   
 
@@ -54,11 +54,12 @@ unique_ptr<PosMarker> Marker::processing() {
 
   //反転
   bitwise_not(frame, reversed);
-  */
+  // */
 
+  //赤色マーカー版
+  /*
   Vec3b *pbgr;  //カラー画素(青緑赤)
   unsigned char *pgray;   //グレースケール画素
-  //赤色マーカー版
   reversed = Mat::zeros(cv::Size(frame.cols, frame.rows), CV_8UC1);
   for (int j = 0; j < frame.rows; j++) {
     pbgr = frame.ptr<Vec3b>(j);
@@ -73,6 +74,7 @@ unique_ptr<PosMarker> Marker::processing() {
       ++pgray;
     }
   }
+  */
 
   // imshow("red", reversed);
   // int key = waitKey(1);

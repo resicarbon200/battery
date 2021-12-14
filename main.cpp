@@ -32,8 +32,8 @@ int main(void) {
 
   Marker mk;
 
-  // mk.setMarker(0x9a1e);   //探すマーカーの模様を16進数4桁で設定
-  mk.setMarker(0x2a69);     //赤マーカー
+  mk.setMarker(0x9a1e);   //探すマーカーの模様を16進数4桁で設定
+  // mk.setMarker(0x2a69);     //赤マーカー
 
   std::unique_ptr<PosMarker> pm;  //スマートポインタ
 
