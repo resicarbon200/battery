@@ -82,12 +82,12 @@ unique_ptr<PosMarker> Marker::processing() {
   }
   // */
 
-  imshow("red", reversed);
-  int key = waitKey(300);
-  if (key == 'q') {
-    destroyAllWindows();
-    exit(0);
-  }
+  // imshow("red", reversed);
+  // int key = waitKey(300);
+  // if (key == 'q') {
+  //   destroyAllWindows();
+  //   exit(0);
+  // }
 
   //輪郭の座標リスト
   vector<vector<Point>> contours;
