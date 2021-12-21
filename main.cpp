@@ -143,7 +143,7 @@ int main(void) {
         //============================================================
         //垂直方向に回転
 
-        if (cstate == ROT_VERTICAL) {
+        if (cstate == ROT_VERT) {
           if (rot_count < 0) {  //カメラが右を向いているとき
 
             if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x04)) < 0) {  //右旋回
@@ -177,7 +177,7 @@ int main(void) {
             --rot_count;
 
           } else {
-            cstate = VARTICAL;
+            cstate = VERTICAL;
           }
         }
 
@@ -202,7 +202,7 @@ int main(void) {
             }
 
           } else {
-            cstate = ROT_VERTICAL;
+            cstate = ROT_VERT;
             rot_count = cam_rot;
           }
         }
