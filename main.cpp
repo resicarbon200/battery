@@ -22,7 +22,7 @@ const int STEPS = 3; //Arduinoの定数stepsに合わせて変更
 typedef enum ctrl_state {   //制御の状態
   VERTICAL,     //垂直移動
   ROT_VERT,     //垂直方向に回転
-  PARARELL,     //平行移動
+  PARALLEL,     //平行移動
   ROT_PARA,     //平行方向に回転
   STOP          //停止
 } ctrl_state;
@@ -57,8 +57,8 @@ int main(void) {
 
   signed char cam_rot;    //Arduino返答(回転角度/(0.9*STEPS))
 
-  float tol_angle = TOL_ANGLE_STRICT;    //角度許容差
   ctrl_state cstate;          //制御の状態
+  int rot_count;
 
   //============================================================
   //
@@ -99,12 +99,11 @@ int main(void) {
         std::cout << pm->getDeflec();  //中心座標が右寄りなら正の数，左よりなら負の数を表示
 
         //============================================================
-        //移動制御
         //============================================================
+        //移動制御
         //垂直移動
-        if (ctrl_state == VERTICAL) {
-          if (-tol_angle < pm->getAngle() && pm->getAngle() < tol_angle) {    //マーカーが移動体の方を向いているとき
-            tol_angle = TOL_ANGLE_LOOSE;
+        if (cstate == VERTICAL) {
+          if (-TOL_ANGLE_LOOSE < pm->getAngle() && pm->getAngle() < TOL_ANGLE_LOOSE) {    //マーカーが移動体の方を向いているとき
 
             if (cam_rot == 0) {    //カメラが移動体の正面方向を向いているとき
 
@@ -125,94 +124,131 @@ int main(void) {
               }
 
             } else {    //カメラが移動体の正面方向を向いていないとき
-              ctrl_state = 
-
-              if (cam_rot < 0) {     //カメラが右を向いているとき
-                if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x04)) < 0){  //右旋回
-                  std::cout << "write error" << std::endl;
-                } else {
-                  // std::cout << "write \"0x04\"" << std::endl;
-                }
-
-                if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x09)) < 0){  //カメラ左回転
-                  std::cout << "write error" << std::endl;
-                } else {
-                  // std::cout << "write \"0x09\"" << std::endl;
-                }
-              }
-              
-              if (cam_rot > 0) {     //カメラが左を向いているとき
-                if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x03)) < 0){  //左旋回
-                  std::cout << "write error" << std::endl;
-                } else {
-                  // std::cout << "write \"0x03\"" << std::endl;
-                }
-
-                if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x0a)) < 0){  //カメラ右回転
-                  std::cout << "write error" << std::endl;
-                } else {
-                  // std::cout << "write \"0x0a\"" << std::endl;
-                }
-              }
+              cstate = ROT_VERT;
+              rot_count = cam_rot;
             }
 
           } else { //マーカーが移動体の方を向いていないとき
-            tol_angle = TOL_ANGLE_STRICT;
             
-            if ((90 - pm->getAngle()) / (0.9 * STEPS) - 2 < cam_rot && cam_rot < (90 - pm->getAngle()) / (0.9 * STEPS) + 2) {
-
-              if (pm->getAngle() > tol_angle) {
-                if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x01)) < 0){  //前進
-                  std::cout << "write error" << std::endl;
-                } else {
-                  // std::cout << "write \"0x01\"" << std::endl;
-                }
-              }
-
-              if (pm->getAngle() < -tol_angle) {
-                if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x02)) < 0){  //後退
-                  std::cout << "write error" << std::endl;
-                } else {
-                  // std::cout << "write \"0x02\"" << std::endl;
-                }
-              }
-
-            } else {
-
-              if (cam_rot < (90 - pm->getAngle()) / (0.9 * STEPS)) {     //移動体が進みたい方向より左向きのとき
-                if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x04)) < 0){  //右旋回
-                  std::cout << "write error" << std::endl;
-                } else {
-                  // std::cout << "write \"0x04\"" << std::endl;
-                }
-
-                if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x09)) < 0){  //カメラ左回転
-                  std::cout << "write error" << std::endl;
-                } else {
-                  // std::cout << "write \"0x09\"" << std::endl;
-                }
-              }
-              
-              if (cam_rot > (90 - pm->getAngle()) / (0.9 * STEPS)) {     //移動体が進みたい方向より右向きのとき
-                if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x03)) < 0){  //左旋回
-                  std::cout << "write error" << std::endl;
-                } else {
-                  // std::cout << "write \"0x03\"" << std::endl;
-                }
-
-                if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x0a)) < 0){  //カメラ右回転
-                  std::cout << "write error" << std::endl;
-                } else {
-                  // std::cout << "write \"0x0a\"" << std::endl;
-                }
-              }
-              
-            }
-
+            // if ((90 - pm->getAngle()) / (0.9 * STEPS) - 2 < cam_rot && cam_rot < (90 - pm->getAngle()) / (0.9 * STEPS) + 2) {
+            //   cstate = PARALLEL;
+            // } else {
+              cstate = ROT_PARA;
+              rot_count = cam_rot;
+            // }
           }
 
         }
 
+        //============================================================
+        //垂直方向に回転
+
+        if (cstate == ROT_VERTICAL) {
+          if (rot_count < 0) {  //カメラが右を向いているとき
+
+            if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x04)) < 0) {  //右旋回
+              std::cout << "write error" << std::endl;
+            } else {
+              // std::cout << "write \"0x04\"" << std::endl;
+            }
+
+            if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x09)) < 0) {  //カメラ左回転
+              std::cout << "write error" << std::endl;
+            } else {
+              // std::cout << "write \"0x09\"" << std::endl;
+            }
+
+            ++rot_count;
+
+          } else if (rot_count > 0) {  //カメラが左を向いているとき
+
+            if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x03)) < 0) {  //左旋回
+              std::cout << "write error" << std::endl;
+            } else {
+              // std::cout << "write \"0x03\"" << std::endl;
+            }
+
+            if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x0a)) < 0) {  //カメラ右回転
+              std::cout << "write error" << std::endl;
+            } else {
+              // std::cout << "write \"0x0a\"" << std::endl;
+            }
+
+            --rot_count;
+
+          } else {
+            cstate = VARTICAL;
+          }
+        }
+
+        //============================================================
+        //平行移動
+
+        if (cstate == PARALLEL) {
+          if (pm->getAngle() > TOL_ANGLE_STRICT) {
+
+            if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x01)) < 0) {  //前進
+              std::cout << "write error" << std::endl;
+            } else {
+              // std::cout << "write \"0x01\"" << std::endl;
+            }
+
+          } else if (pm->getAngle() < -TOL_ANGLE_STRICT) {
+
+            if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x02)) < 0) {  //後退
+              std::cout << "write error" << std::endl;
+            } else {
+              // std::cout << "write \"0x02\"" << std::endl;
+            }
+
+          } else {
+            cstate = ROT_VERTICAL;
+            rot_count = cam_rot;
+          }
+        }
+
+        //============================================================
+        //平行方向に回転
+
+        if (cstate == ROT_PARA) {
+          if (rot_count < (90 - pm->getAngle()) / (0.9 * STEPS) - 1) {  //移動体が進みたい方向より左向きのとき
+            
+            if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x04)) < 0) {  //右旋回
+              std::cout << "write error" << std::endl;
+            } else {
+              // std::cout << "write \"0x04\"" << std::endl;
+            }
+
+            if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x09)) < 0) {  //カメラ左回転
+              std::cout << "write error" << std::endl;
+            } else {
+              // std::cout << "write \"0x09\"" << std::endl;
+            }
+
+            ++rot_count;
+
+          } else if (cam_rot > (90 - pm->getAngle()) / (0.9 * STEPS) + 1) {  //移動体が進みたい方向より右向きのとき
+            
+            if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x03)) < 0) {  //左旋回
+              std::cout << "write error" << std::endl;
+            } else {
+              // std::cout << "write \"0x03\"" << std::endl;
+            }
+
+            if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x0a)) < 0) {  //カメラ右回転
+              std::cout << "write error" << std::endl;
+            } else {
+              // std::cout << "write \"0x0a\"" << std::endl;
+            }
+
+            --rot_count;
+
+          } else {
+            cstate = PARALLEL;
+          }
+        }
+
+        //============================================================
         //============================================================
         //カメラ回転
 
