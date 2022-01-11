@@ -123,7 +123,7 @@ int main(void) {
 
           if (cam_rot == 0) {    //カメラが移動体の正面方向を向いているとき
 
-            if (pm->getDepth() > TAR_DEPTH + TOL_DEPTH) {         //マーカーが遠いとき
+            if (pm->getDepth() > TAR_DEPTH + TOL_DEPTH) {     //マーカーが遠いとき
               if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x01)) < 0){  //前進
                 std::cout << "write error" << std::endl;
               } else {
@@ -269,7 +269,6 @@ int main(void) {
           } else {
             // std::cout << "write \"0x0d\"" << std::endl;
           }
-        }
 
         if (time_count > 5) {
           time_count = 0;
@@ -370,7 +369,13 @@ int main(void) {
           } else {
             // std::cout << "write \"0x11\"" << std::endl;
           }
+
+          --rot_count;
+
+        } else {
+          cstate = PARALLEL;
         }
+      }
 
         if (time_count > 5) {
           time_count = 0;
