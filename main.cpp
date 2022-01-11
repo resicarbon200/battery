@@ -13,7 +13,7 @@
 #include <unistd.h>
 
 
-const float TAR_DEPTH = 18.0;   //目標距離 [cm]
+const float TAR_DEPTH = 20.0;   //目標距離 [cm]
 const float TOL_DEPTH = 1.0;    //距離許容差 [cm]
 const float APPROACH_DEPTH = 40.0;    //この距離以内に近づくまでは横ずれを気にしない [cm]
 const float TOL_ANGLE_LOOSE = 10.0;   //粗い角度許容差 [度]
