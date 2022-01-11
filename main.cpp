@@ -17,7 +17,7 @@ const float TAR_DEPTH = 20.0;   //目標距離 [cm]
 const float TOL_DEPTH = 1.0;    //距離許容差 [cm]
 const float APPROACH_DEPTH = 40.0;    //この距離以内に近づくまでは横ずれを気にしない [cm]
 const float TOL_ANGLE_LOOSE = 10.0;   //粗い角度許容差 [度]
-const float TOL_ANGLE_STRICT = 5.0;   //厳密な角度許容差 [度]
+const float TOL_ANGLE_STRICT = 3.0;   //厳密な角度許容差 [度]
 const float TOL_DEFLEC = 0.2;   //カメラ映像中のズレ許容差
 const int STEPS = 3; //Arduinoの定数stepsに合わせて変更
 
@@ -119,7 +119,7 @@ int main(void) {
       //移動制御
       //垂直移動
       if (cstate == VERTICAL) {
-        if (pm->getDepth() > APPROACH_DEPTH || std::abs(pm->getAngle()) < TOL_ANGLE_LOOSE) {    //マーカーが移動体の方を向いているとき
+        if (pm->getDepth() < APPROACH_DEPTH && std::abs(pm->getAngle()) < TOL_ANGLE_LOOSE) {    //マーカーが移動体の方を向いているとき
 
           if (cam_rot == 0) {    //カメラが移動体の正面方向を向いているとき
 
@@ -389,7 +389,7 @@ int main(void) {
           cstate = STOP;
         }
 
-        if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x02)) < 0) {  //後退
+        if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x01)) < 0) {  //前進
           std::cout << "write error" << std::endl;
         } else {
           // std::cout << "write \"0x02\"" << std::endl;
