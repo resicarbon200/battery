@@ -314,8 +314,7 @@ int main(void) {
       //バッテリー交換動作4 180度回転
 
       if (cstate == EXCHANGE4) {
-        if (time_count * STEPS > 200) {
-          time_count = 0;
+        if (cam_rot * STEPS >= 200) {
           cstate = EXCHANGE5;
         }
 
@@ -330,8 +329,6 @@ int main(void) {
         } else {
           // std::cout << "write \"0x09\"" << std::endl;
         }
-
-        ++time_count;
       }
 
       //============================================================
@@ -342,10 +339,10 @@ int main(void) {
           cstate = EXCHANGE6;
         }
 
-        if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x01)) < 0) {  //前進
+        if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x02)) < 0) {  //後退
           std::cout << "write error" << std::endl;
         } else {
-          // std::cout << "write \"0x01\"" << std::endl;
+          // std::cout << "write \"0x02\"" << std::endl;
         }
       }
 
