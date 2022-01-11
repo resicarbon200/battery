@@ -356,7 +356,7 @@ int main(void) {
 
         if (time_count > 5) {
           time_count = 0;
-          cstate = EXCHANGE3;
+          cstate = EXCHANGE7;
         }
 
         ++time_count;
@@ -378,7 +378,6 @@ int main(void) {
         } else {
           cstate = PARALLEL;
         }
-      }
 
         if (time_count > 5) {
           time_count = 0;
