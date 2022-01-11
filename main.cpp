@@ -313,7 +313,8 @@ int main(void) {
       //バッテリー交換動作4 180度回転
 
       if (cstate == EXCHANGE4) {
-        if (cam_rot * STEPS >= 200) {
+        if (time_count * STEPS > 200) {
+          time_count = 0;
           cstate = EXCHANGE5;
         }
 
@@ -328,6 +329,8 @@ int main(void) {
         } else {
           // std::cout << "write \"0x09\"" << std::endl;
         }
+
+        ++time_count;
       }
 
       //============================================================
