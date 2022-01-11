@@ -370,11 +370,6 @@ int main(void) {
           } else {
             // std::cout << "write \"0x11\"" << std::endl;
           }
-
-          --rot_count;
-
-        } else {
-          cstate = PARALLEL;
         }
 
         if (time_count > 5) {
