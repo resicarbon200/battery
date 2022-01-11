@@ -119,7 +119,7 @@ int main(void) {
       //移動制御
       //垂直移動
       if (cstate == VERTICAL) {
-        if (pm->getDepth() < APPROACH_DEPTH && std::abs(pm->getAngle()) < TOL_ANGLE_LOOSE) {    //マーカーが移動体の方を向いているとき
+        if (pm->getDepth() > APPROACH_DEPTH || std::abs(pm->getAngle()) < TOL_ANGLE_LOOSE) {    //マーカーが移動体の方を向いているとき
 
           if (cam_rot == 0) {    //カメラが移動体の正面方向を向いているとき
 
