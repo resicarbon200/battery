@@ -269,6 +269,7 @@ int main(void) {
           } else {
             // std::cout << "write \"0x0d\"" << std::endl;
           }
+        }
 
         if (time_count > 5) {
           time_count = 0;
