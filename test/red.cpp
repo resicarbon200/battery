@@ -23,7 +23,7 @@ int main(void) {
   cout << "succeed." << endl;
   cout << "* Press 'q' to finish this program." << endl;
 
-  const unsigned int marker = 0x9a1e;  //マーカーのデータ
+  const unsigned int marker = 0x2a69;  //マーカーのデータ
   bitset<32> bs(marker);
 
   Mat frame;  // 1フレームの画像
@@ -40,7 +40,7 @@ int main(void) {
     cap >> frame;  // USBカメラが得た動画の１フレームを格納
 
     //ぼかし（ノイズ対策）
-    blur(frame, frame, Size(2, 2));
+    // blur(frame, frame, Size(2, 2));
 
     Vec3b *pbgr;           //カラー画素(青緑赤)
     unsigned char *pgray;  //グレースケール画素
@@ -115,7 +115,10 @@ int main(void) {
         cout << "右の辺" << righter << endl;
         cout << endl;
 
-        cout << "1=黒/0=白の行列" << endl;
+        cout << "大きさ" << (norm(lefter) + norm(righter)) / 2 << endl;
+        cout << endl;
+
+        cout << "1=赤/0=白の行列" << endl;
         cout << "[" << endl;
 
         int cnt_outer = 0;
@@ -158,7 +161,7 @@ int main(void) {
         cout << "]" << endl;
 
         cout << "枠一致率:" << cnt_outer << "/" << 20 << endl;
-        cout << "黒一致率:" << cnt_black << "/" << bs.count() << endl;
+        cout << "赤一致率:" << cnt_black << "/" << bs.count() << endl;
         cout << "白一致率:" << cnt_white << "/" << 16 - bs.count() << endl;
 
         if (cnt_outer / 20.0 > 0.8 && cnt_black / (float)bs.count() > 0.8 &&
@@ -172,16 +175,16 @@ int main(void) {
     }
 
     // imshow("window", smoothed);   //画像を表示
-    imshow("window", frame);  //画像を表示
+    // imshow("window", frame);  //画像を表示
 
     cout << "1ループ終了" << endl;
     cout << endl;
 
-    int key = waitKey(1);
+    // int key = waitKey(1);
 
-    if (key == 'q') {  // qが押されたとき
-      break;           // whileループから抜ける（終了）
-    }
+    // if (key == 'q') {  // qが押されたとき
+    //   break;           // whileループから抜ける（終了）
+    // }
   }
   destroyAllWindows();
   return 0;
