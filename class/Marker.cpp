@@ -45,7 +45,7 @@ unique_ptr<PosMarker> Marker::processing() {
   cap >> frame; //USBカメラが得た動画の１フレームを格納
 
   //ぼかし（ノイズ対策）
-  blur(frame, frame, Size(2, 2));
+  // blur(frame, frame, Size(2, 2));
 
   //白黒マーカー版
   /*

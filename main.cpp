@@ -117,8 +117,11 @@ int main(void) {
       //============================================================
       //============================================================
       //移動制御
+
+      switch (cstate) {
+
       //垂直移動
-      if (cstate == VERTICAL) {
+      case VERTICAL:
         if (pm->getDepth() > APPROACH_DEPTH || std::abs(pm->getAngle()) < TOL_ANGLE_LOOSE) {    //マーカーが移動体の方を向いているとき
 
           if (cam_rot == 0) {    //カメラが移動体の正面方向を向いているとき
@@ -148,13 +151,12 @@ int main(void) {
           cstate = ROT_PARA;  
           rot_count = cam_rot;
         }
-
-      }
+        break;
 
       //============================================================
       //垂直移動の準備のため回転
 
-      if (cstate == ROT_VERT) {
+      case ROT_VERT:
         if (rot_count < 0) {  //カメラが右を向いているとき
 
           if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x04)) < 0) {  //右旋回
@@ -190,12 +192,12 @@ int main(void) {
         } else {
           cstate = VERTICAL;
         }
-      }
+        break;
 
       //============================================================
       //平行移動
 
-      if (cstate == PARALLEL) {
+      case PARALLEL:
         if (pm->getAngle() > TOL_ANGLE_STRICT) {
 
           if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x01)) < 0) {  //前進
@@ -216,12 +218,12 @@ int main(void) {
           cstate = ROT_VERT;
           rot_count = cam_rot;
         }
-      }
+        break;
 
       //============================================================
       //平行移動の準備のため回転
 
-      if (cstate == ROT_PARA) {
+      case ROT_PARA:
         if (rot_count < (90 - pm->getAngle()) / (0.9 * STEPS) - 1) {  //移動体が進みたい方向より左向きのとき
           
           if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x04)) < 0) {  //右旋回
@@ -257,12 +259,12 @@ int main(void) {
         } else {
           cstate = PARALLEL;
         }
-      }
+        break;
 
       //============================================================
       //バッテリー交換動作1 ロック
 
-      if (cstate == EXCHANGE1) {
+      case EXCHANGE1:
         if (time_count == 0) {
           if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x0d)) < 0) {  //前方サーボロック
             std::cout << "write error" << std::endl;
@@ -277,12 +279,12 @@ int main(void) {
         }
 
         ++time_count;
-      }
+        break;
 
       //============================================================
       //バッテリー交換動作2 ホルダ側ロック解除
 
-      if (cstate == EXCHANGE2) {
+      case EXCHANGE2:
         /* ここに通信追加 */
 
         if (time_count > 5) {
@@ -291,12 +293,12 @@ int main(void) {
         }
 
         ++time_count;
-      }
+        break;
 
       //============================================================
       //バッテリー交換動作3 後退
 
-      if (cstate == EXCHANGE3) {
+      case EXCHANGE3:
         if (time_count > 20) {
           time_count = 0;
           cstate = EXCHANGE4;
@@ -308,12 +310,12 @@ int main(void) {
           // std::cout << "write \"0x02\"" << std::endl;
         }
         ++time_count;
-      }
+        break;
 
       //============================================================
       //バッテリー交換動作4 180度回転
 
-      if (cstate == EXCHANGE4) {
+      case EXCHANGE4:
         if (cam_rot * STEPS >= 200) {
           cstate = EXCHANGE5;
         }
@@ -329,12 +331,12 @@ int main(void) {
         } else {
           // std::cout << "write \"0x09\"" << std::endl;
         }
-      }
+        break;
 
       //============================================================
       //バッテリー交換動作5 前進
 
-      if (cstate == EXCHANGE5) {
+      case EXCHANGE5:
         if (pm->getDepth() < TAR_DEPTH + TOL_DEPTH) {
           cstate = EXCHANGE6;
         }
@@ -344,12 +346,12 @@ int main(void) {
         } else {
           // std::cout << "write \"0x02\"" << std::endl;
         }
-      }
+        break;
 
       //============================================================
       //バッテリー交換動作6 ホルダ側ロック
 
-      if (cstate == EXCHANGE6) {
+      case EXCHANGE6:
         /* ここに通信追加 */
 
         if (time_count > 5) {
@@ -358,12 +360,12 @@ int main(void) {
         }
 
         ++time_count;
-      }
+        break;
 
       //============================================================
       //バッテリー交換動作7 ロック解除
 
-      if (cstate == EXCHANGE7) {
+      case EXCHANGE7:
         if (time_count == 0) {
           if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x11)) < 0) {  //後方サーボロック解除
             std::cout << "write error" << std::endl;
@@ -378,12 +380,12 @@ int main(void) {
         }
 
         ++time_count;
-      }
+        break;
 
       //============================================================
       //バッテリー交換動作8 後退
 
-      if (cstate == EXCHANGE8) {
+      case EXCHANGE8:
         if (time_count > 30) {
           time_count = 0;
           cstate = STOP;
@@ -395,6 +397,8 @@ int main(void) {
           // std::cout << "write \"0x02\"" << std::endl;
         }
         ++time_count;
+        break;
+        
       }
 
       //============================================================
@@ -403,16 +407,16 @@ int main(void) {
       msleep(5);
 
       if (cstate != STOP) {
-        if (pm->getDeflec() > TOL_DEFLEC) {     //マーカーが視界右方のとき
-          if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x0a)) < 0){
+        if (pm->getDeflec() > TOL_DEFLEC) {  //マーカーが視界右方のとき
+          if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x0a)) < 0) {
             std::cout << "write error" << std::endl;
           } else {
             // std::cout << "write \"0x0a\"" << std::endl;
           }
         }
 
-        if (pm->getDeflec() < -TOL_DEFLEC) {     //マーカーが視界左方のとき
-          if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x09)) < 0){
+        if (pm->getDeflec() < -TOL_DEFLEC) {  //マーカーが視界左方のとき
+          if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x09)) < 0) {
             std::cout << "write error" << std::endl;
           } else {
             // std::cout << "write \"0x09\"" << std::endl;
