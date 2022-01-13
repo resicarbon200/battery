@@ -1,6 +1,6 @@
 CXX :=g++
 # インクルードファイル等
-CXXFLAGS :=-std=c++11 `pkg-config --cflags opencv4` `pkg-config --libs opencv4` -lwiringPi
+CXXFLAGS :=-std=c++11 `pkg-config --cflags opencv4` `pkg-config --libs opencv4` -lwiringPi -lbluetooth
 
 # ソースディレクトリの中を(shellの)findコマンドで走破してサブディレクトリまでリスト化する
 SRCDIRS :=$(shell find ./ -type d)
