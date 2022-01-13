@@ -65,7 +65,7 @@ int main(void)
   char buf[1024] = {0};
   int s, client, bytes_read,status;
   socklen_t opt = sizeof(rem_addr);
-  char dest[18] = "01:23:45:67:89:AB";
+  char dest[18] = "E4:5F:01:58:EF:A7";
 
   Marker mk;
 
@@ -86,7 +86,7 @@ int main(void)
   //============================================================
   //
 
-  char buf[13];
+  char buf_button[13];
 
   int fd_button = wiringPiI2CSetup(0x10);
   if (fd_button == -1)
@@ -105,9 +105,9 @@ int main(void)
   {
     start_time = std::chrono::system_clock::now(); //計測開始時間
 
-    if (read(fd_button, buf, 13) != 0)
+    if (read(fd_button, buf_button, 13) != 0)
     {
-      if (buf[4] == '1')
+      if (buf_button[4] == '1')
       { //始動ボタン
         cstate = VERTICAL;
         if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x0b)) < 0)
@@ -115,7 +115,7 @@ int main(void)
           std::cout << "write error" << std::endl;
         }
       }
-      else if (buf[6] == '1')
+      else if (buf_button[6] == '1')
       { //停止ボタン
         std::cout << "stopped" << std::endl;
         cstate = STOP;
