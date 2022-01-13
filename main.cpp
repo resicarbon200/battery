@@ -66,6 +66,8 @@ int main(void)
   int s, client, bytes_read,status;
   socklen_t opt = sizeof(rem_addr);
   char dest[18] = "E4:5F:01:58:EF:A7";
+  bdaddr_t bdarray_any = {0, 0, 0, 0, 0, 0};
+
 
   Marker mk;
 
@@ -475,15 +477,13 @@ int main(void)
       case EXCHANGE6:
         /* ここに通信追加 */
 
-        bdaddr_t bdarray_any = {0, 0, 0, 0, 0, 0};
-
         // allocate socket
         s = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
 
         // bind socket to port 1 of the first available
         // local bluetooth adapter
         loc_addr.rc_family = AF_BLUETOOTH;
-        loc_addr.rc_bdaddr = *bdarray_any;
+        loc_addr.rc_bdaddr = bdarray_any;
         loc_addr.rc_channel = (uint8_t)1;
         bind(s, (struct sockaddr *)&loc_addr, sizeof(loc_addr));
 
