@@ -11,8 +11,6 @@
 #include <opencv2/opencv.hpp>
 
 class PosMarker {
-  const int PARAM_D = 2900;   ///< 距離計算用パラメータ
-
   cv::Point ul;   ///< 左上の頂点の座標
   cv::Point ur;   ///< 右上の頂点の座標
   cv::Point ll;   ///< 左下の頂点の座標

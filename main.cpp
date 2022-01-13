@@ -15,10 +15,10 @@
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/rfcomm.h>
 
-const float TAR_DEPTH = 20.0;       //目標距離 [cm]
+const float TAR_DEPTH = 18.0;       //目標距離 [cm]
 const float TOL_DEPTH = 1.0;        //距離許容差 [cm]
 const float APPROACH_DEPTH = 40.0;  //この距離以内に近づくまでは横ずれを気にしない [cm]
-const float TOL_ANGLE_LOOSE = 10.0; //粗い角度許容差 [度]
+const float TOL_ANGLE_LOOSE = 8.0; //粗い角度許容差 [度]
 const float TOL_ANGLE_STRICT = 3.0; //厳密な角度許容差 [度]
 const float TOL_DEFLEC = 0.2;       //カメラ映像中のズレ許容差
 const int STEPS = 3;                // Arduinoの定数stepsに合わせて変更
@@ -184,7 +184,7 @@ int main(void)
           else
           { //カメラが移動体の正面方向を向いていないとき
             cstate = ROT_VERT;
-            rot_count = cam_rot;
+            // rot_count = cam_rot;
           }
         }
         else
@@ -198,7 +198,7 @@ int main(void)
         //垂直移動の準備のため回転
 
       case ROT_VERT:
-        if (rot_count < 0)
+        if (cam_rot < 0)
         { //カメラが右を向いているとき
 
           if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x04)) < 0)
@@ -219,9 +219,9 @@ int main(void)
             // std::cout << "write \"0x09\"" << std::endl;
           }
 
-          ++rot_count;
+          // ++rot_count;
         }
-        else if (rot_count > 0)
+        else if (cam_rot > 0)
         { //カメラが左を向いているとき
 
           if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x03)) < 0)
@@ -242,7 +242,7 @@ int main(void)
             // std::cout << "write \"0x0a\"" << std::endl;
           }
 
-          --rot_count;
+          // --rot_count;
         }
         else
         {
@@ -372,27 +372,29 @@ int main(void)
       case EXCHANGE2:
         /* ここに通信追加 */
 
-        // allocate a socket
-        s = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
+        if (time_count == 0) {
+          // allocate a socket
+          s = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
 
-        // set the connection parameters (who to connect to)
-        addr.rc_family = AF_BLUETOOTH;
-        addr.rc_channel = (uint8_t)1;
-        str2ba(dest, &addr.rc_bdaddr);
+          // set the connection parameters (who to connect to)
+          addr.rc_family = AF_BLUETOOTH;
+          addr.rc_channel = (uint8_t)1;
+          str2ba(dest, &addr.rc_bdaddr);
 
-        // connect to server
-        status = connect(s, (struct sockaddr *)&addr, sizeof(addr));
+          // connect to server
+          status = connect(s, (struct sockaddr *)&addr, sizeof(addr));
 
-        // send a message
-        if (status == 0)
-        {
-          status = write(s, "hello!", 6);
+          // send a message
+          if (status == 0)
+          {
+            status = write(s, "hello!", 6);
+          }
+
+          if (status < 0)
+            perror("uh oh");
+
+          close(s);
         }
-
-        if (status < 0)
-          perror("uh oh");
-
-        close(s);
 
         if (time_count > 5)
         {
