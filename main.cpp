@@ -18,7 +18,7 @@
 const float TAR_DEPTH = 18.0;       //目標距離 [cm]
 const float TOL_DEPTH = 1.0;        //距離許容差 [cm]
 const float APPROACH_DEPTH = 40.0;  //この距離以内に近づくまでは横ずれを気にしない [cm]
-const float TOL_ANGLE_LOOSE = 8.0; //粗い角度許容差 [度]
+const float TOL_ANGLE_LOOSE = 8.0;  //粗い角度許容差 [度]
 const float TOL_ANGLE_STRICT = 3.0; //厳密な角度許容差 [度]
 const float TOL_DEFLEC = 0.2;       //カメラ映像中のズレ許容差
 const int STEPS = 3;                // Arduinoの定数stepsに合わせて変更
@@ -61,13 +61,12 @@ int main(void)
   double elapsed;                                             //時間計測用
 
   // Bluetooth通信
-  struct sockaddr_rc loc_addr = {0}, rem_addr = {0},addr={0};
+  struct sockaddr_rc loc_addr = {0}, rem_addr = {0}, addr = {0};
   char buf[1024] = {0};
-  int s, client, bytes_read,status;
+  int s, client, bytes_read, status;
   socklen_t opt = sizeof(rem_addr);
-  char dest[18] = "E4:5F:01:58:EF:A7";
+  char dest[18] = "DC:A6:32:8E:72:E0";
   bdaddr_t bdarray_any = {0, 0, 0, 0, 0, 0};
-
 
   Marker mk;
 
@@ -356,6 +355,8 @@ int main(void)
             // std::cout << "write \"0x0d\"" << std::endl;
           }
         }
+        
+        ++time_count;
 
         if (time_count > 5)
         {
@@ -363,7 +364,6 @@ int main(void)
           cstate = EXCHANGE2;
         }
 
-        ++time_count;
         break;
 
         //============================================================
@@ -372,29 +372,29 @@ int main(void)
       case EXCHANGE2:
         /* ここに通信追加 */
 
-        if (time_count == 0) {
-          // allocate a socket
-          s = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
+        // allocate a socket
+        s = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
 
-          // set the connection parameters (who to connect to)
-          addr.rc_family = AF_BLUETOOTH;
-          addr.rc_channel = (uint8_t)1;
-          str2ba(dest, &addr.rc_bdaddr);
+        // set the connection parameters (who to connect to)
+        addr.rc_family = AF_BLUETOOTH;
+        addr.rc_channel = (uint8_t)1;
+        str2ba(dest, &addr.rc_bdaddr);
 
-          // connect to server
-          status = connect(s, (struct sockaddr *)&addr, sizeof(addr));
+        // connect to server
+        status = connect(s, (struct sockaddr *)&addr, sizeof(addr));
 
-          // send a message
-          if (status == 0)
-          {
-            status = write(s, "hello!", 6);
-          }
-
-          if (status < 0)
-            perror("uh oh");
-
-          close(s);
+        // send a message
+        if (status == 0)
+        {
+          status = write(s, "unlock", 6);
         }
+
+        if (status < 0)
+          perror("uh oh");
+
+        close(s);
+
+        ++time_count;
 
         if (time_count > 5)
         {
@@ -402,19 +402,12 @@ int main(void)
           cstate = EXCHANGE3;
         }
 
-        ++time_count;
         break;
 
         //============================================================
         //バッテリー交換動作3 後退
 
       case EXCHANGE3:
-        if (time_count > 20)
-        {
-          time_count = 0;
-          cstate = EXCHANGE4;
-        }
-
         if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x02)) < 0)
         { //後退
           std::cout << "write error" << std::endl;
@@ -424,6 +417,12 @@ int main(void)
           // std::cout << "write \"0x02\"" << std::endl;
         }
         ++time_count;
+
+        if (time_count > 20) {
+          time_count = 0;
+          cstate = EXCHANGE4;
+        }
+
         break;
 
         //============================================================
@@ -460,6 +459,10 @@ int main(void)
       case EXCHANGE5:
         if (pm->getDepth() < TAR_DEPTH + TOL_DEPTH)
         {
+          ++time_count;
+        }
+
+        if (time_count > 3) {
           cstate = EXCHANGE6;
         }
 
@@ -511,21 +514,22 @@ int main(void)
         close(s);
 
         // if (time_count > 5)
-        if (strcmp(buf, "lockerd"))
+        if (strcmp(buf, "lock")==0)
         {
           time_count = 0;
           cstate = EXCHANGE7;
         }
 
-        ++time_count;
+        //++time_count;
         break;
 
         //============================================================
         //バッテリー交換動作7 ロック解除
 
       case EXCHANGE7:
-        if (time_count == 0)
-        {
+        //if (time_count == 0)
+        //{
+          msleep(1);
           if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x11)) < 0)
           { //後方サーボロック解除
             std::cout << "write error" << std::endl;
@@ -534,15 +538,15 @@ int main(void)
           {
             // std::cout << "write \"0x11\"" << std::endl;
           }
-        }
+        //}
 
-        if (time_count > 5)
-        {
+        //if (time_count > 5)
+        //{
           time_count = 0;
           cstate = EXCHANGE8;
-        }
+        //}
 
-        ++time_count;
+        //++time_count;
         break;
 
         //============================================================
