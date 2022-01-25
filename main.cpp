@@ -17,7 +17,7 @@
 
 const float TAR_DEPTH = 18.0;       //目標距離 [cm]
 const float TOL_DEPTH = 1.0;        //距離許容差 [cm]
-const float APPROACH_DEPTH = 30.0;  //この距離以内に近づくまでは横ずれを気にしない [cm]
+const float APPROACH_DEPTH = 37.0;  //この距離以内に近づくまでは横ずれを気にしない [cm]
 const float TOL_ANGLE_LOOSE = 9.0;  //粗い角度許容差 [度]
 const float TOL_ANGLE_STRICT = 5.0; //厳密な角度許容差 [度]
 const float TOL_DEFLEC = 0.2;       //カメラ映像中のズレ許容差
@@ -82,7 +82,7 @@ int main(void)
   signed char cam_rot; // Arduino返答(回転角度/(0.9*STEPS))
 
   ctrl_state cstate = STOP; //制御の状態
-  int rot_count;            //回転角度カウンタ
+  // int rot_count;            //回転角度カウンタ
   int time_count = 0;       //タイミング合わせ用カウンタ
 
   bool cam_turn_right = true;   //サーチモード中のカメラの回転方向を決めるフラグ
@@ -186,13 +186,12 @@ int main(void)
           else
           { //カメラが移動体の正面方向を向いていないとき
             cstate = ROT_VERT;
-            // rot_count = cam_rot;
           }
         }
         else
         { //マーカーが移動体の方を向いていないとき
           cstate = ROT_PARA;
-          rot_count = cam_rot;
+          // rot_count = cam_rot;
         }
         break;
 
@@ -221,7 +220,6 @@ int main(void)
             // std::cout << "write \"0x09\"" << std::endl;
           }
 
-          // ++rot_count;
         }
         else if (cam_rot > 0)
         { //カメラが左を向いているとき
@@ -244,11 +242,11 @@ int main(void)
             // std::cout << "write \"0x0a\"" << std::endl;
           }
 
-          // --rot_count;
         }
         else
         {
           cstate = VERTICAL;
+          msleep(500);    //一旦停止
         }
         break;
 
@@ -283,15 +281,17 @@ int main(void)
         else
         {
           cstate = ROT_VERT;
-          rot_count = cam_rot;
+          // rot_count = cam_rot;
         }
+
+        ++time_count;
         break;
 
         //============================================================
         //平行移動の準備のため回転
 
       case ROT_PARA:
-        if (rot_count < (90 - pm->getAngle()) / (0.9 * STEPS) - 1)
+        if (cam_rot < (90 - pm->getAngle()) / (0.9 * STEPS) - 1)
         { //移動体が進みたい方向より左向きのとき
 
           if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x04)) < 0)
@@ -312,7 +312,7 @@ int main(void)
             // std::cout << "write \"0x09\"" << std::endl;
           }
 
-          ++rot_count;
+          // ++rot_count;
         }
         else if (cam_rot > (90 - pm->getAngle()) / (0.9 * STEPS) + 1)
         { //移動体が進みたい方向より右向きのとき
@@ -335,11 +335,12 @@ int main(void)
             // std::cout << "write \"0x0a\"" << std::endl;
           }
 
-          --rot_count;
+          // --rot_count;
         }
         else
         {
           cstate = PARALLEL;
+          msleep(500);    //一旦停止
         }
         break;
 
