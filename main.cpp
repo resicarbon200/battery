@@ -17,11 +17,12 @@
 
 const float TAR_DEPTH = 18.0;       //目標距離 [cm]
 const float TOL_DEPTH = 1.0;        //距離許容差 [cm]
-const float APPROACH_DEPTH = 40.0;  //この距離以内に近づくまでは横ずれを気にしない [cm]
-const float TOL_ANGLE_LOOSE = 8.0;  //粗い角度許容差 [度]
-const float TOL_ANGLE_STRICT = 3.0; //厳密な角度許容差 [度]
+const float APPROACH_DEPTH = 30.0;  //この距離以内に近づくまでは横ずれを気にしない [cm]
+const float TOL_ANGLE_LOOSE = 9.0;  //粗い角度許容差 [度]
+const float TOL_ANGLE_STRICT = 5.0; //厳密な角度許容差 [度]
 const float TOL_DEFLEC = 0.2;       //カメラ映像中のズレ許容差
-const int STEPS = 3;                // Arduinoの定数stepsに合わせて変更
+const int STEPS = 3;                //Arduinoの定数stepsに合わせて変更
+const int INTERVAL = 150;           //処理の間隔 [ミリ秒]
 
 typedef enum
 {            //制御の状態
@@ -84,6 +85,8 @@ int main(void)
   int rot_count;            //回転角度カウンタ
   int time_count = 0;       //タイミング合わせ用カウンタ
 
+  bool cam_turn_right = true;   //サーチモード中のカメラの回転方向を決めるフラグ
+
   //============================================================
   //
 
@@ -132,7 +135,7 @@ int main(void)
     cam_rot = wiringPiI2CRead(fd_motor);
 
     if (pm != nullptr)
-    {
+    {   //マーカーがカメラに映っているとき
       std::cout << std::setw(15) << pm->getDepth();  //距離を表示
       std::cout << std::setw(15) << pm->getAngle();  //角度を表示
       std::cout << std::setw(15) << pm->getDeflec(); //中心座標が右寄りなら正の数，左よりなら負の数を表示
@@ -606,8 +609,28 @@ int main(void)
       //============================================================
     }
     else
-    {
+    {   // マーカーがカメラに映っていないとき
       std::cout << "?";
+
+      if (std::abs(cam_rot) * STEPS * 0.9 > 180) {
+        cam_turn_right = !cam_turn_right;   //フラグ反転
+      }
+
+      if (cstate != STOP) {
+        if (cam_turn_right == true) {
+          if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x0a)) < 0) {  //カメラ右回転
+            std::cout << "write error" << std::endl;
+          } else {
+            // std::cout << "write \"0x0a\"" << std::endl;
+          }
+        } else {
+          if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x09)) < 0) {  //カメラ左回転
+            std::cout << "write error" << std::endl;
+          } else {
+            // std::cout << "write \"0x09\"" << std::endl;
+          }
+        }
+      }
     }
 
     std::cout << std::setw(15) << (int)cam_rot << std::endl;
@@ -619,7 +642,7 @@ int main(void)
 
     if (elapsed >= 1)
     {
-      msleep(150 - elapsed);
+      msleep(INTERVAL - elapsed);
     }
   }
 
