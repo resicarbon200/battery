@@ -15,10 +15,10 @@
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/rfcomm.h>
 
-const float TAR_DEPTH = 18.0;       //目標距離 [cm]
+const float TAR_DEPTH = 17.5;       //目標距離 [cm]
 const float TOL_DEPTH = 1.0;        //距離許容差 [cm]
-const float APPROACH_DEPTH = 37.0;  //この距離以内に近づくまでは横ずれを気にしない [cm]
-const float TOL_ANGLE_LOOSE = 9.0;  //粗い角度許容差 [度]
+const float APPROACH_DEPTH = 33.0;  //この距離以内に近づくまでは横ずれを気にしない [cm]
+const float TOL_ANGLE_LOOSE = 12.0;  //粗い角度許容差 [度]
 const float TOL_ANGLE_STRICT = 5.0; //厳密な角度許容差 [度]
 const float TOL_DEFLEC = 0.2;       //カメラ映像中のズレ許容差
 const int STEPS = 1;                //Arduinoの定数stepsに合わせて変更
@@ -110,7 +110,7 @@ int main(void)
   {
     start_time = std::chrono::system_clock::now(); //計測開始時間
     if (read(fd_button, buf_button, 13) != 0) {
-      if (buf_button[4] == '1')
+      if (buf_button[4] == '1' && cstate == STOP)
       { //始動ボタン
         std::cout << "start" << std::endl;
         cstate = VERTICAL;
@@ -121,6 +121,16 @@ int main(void)
       }
       else if (buf_button[6] == '1')
       { //停止ボタン
+        if (cstate == STOP) {
+          if (time_count == 0) {
+            if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x10)) <
+                0) {  //後方サーボロック
+              std::cout << "write error" << std::endl;
+            } else {
+              // std::cout << "write \"0x0d\"" << std::endl;
+            }
+          }
+        }
         std::cout << "stopped" << std::endl;
         cstate = STOP;
         if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x0c)) < 0)
@@ -183,6 +193,7 @@ int main(void)
             else
             { //目標距離
               cstate = EXCHANGE1;
+              time_count = 0;
             }
           }
           else
