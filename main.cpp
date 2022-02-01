@@ -21,7 +21,7 @@ const float APPROACH_DEPTH = 37.0;  //この距離以内に近づくまでは横
 const float TOL_ANGLE_LOOSE = 9.0;  //粗い角度許容差 [度]
 const float TOL_ANGLE_STRICT = 5.0; //厳密な角度許容差 [度]
 const float TOL_DEFLEC = 0.2;       //カメラ映像中のズレ許容差
-const int STEPS = 3;                //Arduinoの定数stepsに合わせて変更
+const int STEPS = 1;                //Arduinoの定数stepsに合わせて変更
 const int INTERVAL = 150;           //処理の間隔 [ミリ秒]
 
 typedef enum
@@ -79,7 +79,8 @@ int main(void)
   int ID = 0x11; // ArduinoのID
   int fd_motor = wiringPiI2CSetup(ID);
 
-  signed char cam_rot; // Arduino返答(回転角度/(0.9*STEPS))
+  int cam_rot = 0;    // Arduino返答(回転角度/(0.9*STEPS))
+  char buf_cam_rot[5];  // Arduino返答文字列
 
   ctrl_state cstate = STOP; //制御の状態
   // int rot_count;            //回転角度カウンタ
@@ -108,11 +109,10 @@ int main(void)
   while (1)
   {
     start_time = std::chrono::system_clock::now(); //計測開始時間
-
-    if (read(fd_button, buf_button, 13) != 0)
-    {
+    if (read(fd_button, buf_button, 13) != 0) {
       if (buf_button[4] == '1')
       { //始動ボタン
+        std::cout << "start" << std::endl;
         cstate = VERTICAL;
         if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x0b)) < 0)
         { //カメラ固定
@@ -132,7 +132,9 @@ int main(void)
 
     pm = std::move(mk.processing()); // processingで作ったスマートポインタの所有権を移動する
 
-    cam_rot = wiringPiI2CRead(fd_motor);
+    if (read(fd_motor, buf_cam_rot, sizeof(buf_cam_rot)) != -1) {
+      cam_rot = std::atoi(buf_cam_rot);
+    }
 
     if (pm != nullptr)
     {   //マーカーがカメラに映っているとき
