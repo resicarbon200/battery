@@ -20,7 +20,7 @@ const float TOL_DEPTH = 1.0;        //距離許容差 [cm]
 const float APPROACH_DEPTH = 33.0;  //この距離以内に近づくまでは横ずれを気にしない [cm]
 const float TOL_ANGLE_LOOSE = 12.0;  //粗い角度許容差 [度]
 const float TOL_ANGLE_STRICT = 5.0; //厳密な角度許容差 [度]
-const float TOL_DEFLEC = 0.2;       //カメラ映像中のズレ許容差
+const float TOL_DEFLEC = 0.14;       //カメラ映像中のズレ許容差
 const int STEPS = 1;                //Arduinoの定数stepsに合わせて変更
 const int INTERVAL = 150;           //処理の間隔 [ミリ秒]
 
@@ -148,10 +148,10 @@ int main(void)
 
     if (pm != nullptr)
     {   //マーカーがカメラに映っているとき
-      std::cout << std::setw(15) << pm->getDepth();  //距離を表示
-      std::cout << std::setw(15) << pm->getAngle();  //角度を表示
-      std::cout << std::setw(15) << pm->getDeflec(); //中心座標が右寄りなら正の数，左よりなら負の数を表示
-      std::cout << std::setw(15) << cstate;
+      std::cout << "Depth:" << std::setw(12) << pm->getDepth() << "\t";  //距離を表示
+      std::cout << "Angle:" << std::setw(12) << pm->getAngle() << "\t";  //角度を表示
+      std::cout << "Deflc:" << std::setw(12) << pm->getDeflec() << "\t"; //中心座標が右寄りなら正の数，左よりなら負の数を表示
+      std::cout << "state:" << std::setw(12) << cstate << "\t";
 
       //============================================================
       //============================================================
@@ -162,49 +162,53 @@ int main(void)
 
       //垂直移動
       case VERTICAL:
-        if (pm->getDepth() > APPROACH_DEPTH || std::abs(pm->getAngle()) < TOL_ANGLE_LOOSE)
-        { //マーカーが移動体の方を向いているとき
+        if (time_count >= 3) {
+          if (pm->getDepth() > APPROACH_DEPTH || std::abs(pm->getAngle()) < TOL_ANGLE_LOOSE)
+          { //マーカーが移動体の方を向いているとき
 
-          if (cam_rot == 0)
-          { //カメラが移動体の正面方向を向いているとき
+            if (cam_rot == 0)
+            { //カメラが移動体の正面方向を向いているとき
 
-            if (pm->getDepth() > TAR_DEPTH + TOL_DEPTH)
-            { //マーカーが遠いとき
-              if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x01)) < 0)
-              { //前進
-                std::cout << "write error" << std::endl;
+              if (pm->getDepth() > TAR_DEPTH + TOL_DEPTH)
+              { //マーカーが遠いとき
+                if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x01)) < 0)
+                { //前進
+                  std::cout << "write error" << std::endl;
+                }
+                else
+                {
+                  // std::cout << "write \"0x01\"" << std::endl;
+                }
+              }
+              else if (pm->getDepth() < TAR_DEPTH - TOL_DEPTH)
+              { //マーカーが近いとき
+                if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x02)) < 0)
+                { //後退
+                  std::cout << "write error" << std::endl;
+                }
+                else
+                {
+                  // std::cout << "write \"0x02\"" << std::endl;
+                }
               }
               else
-              {
-                // std::cout << "write \"0x01\"" << std::endl;
-              }
-            }
-            else if (pm->getDepth() < TAR_DEPTH - TOL_DEPTH)
-            { //マーカーが近いとき
-              if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x02)) < 0)
-              { //後退
-                std::cout << "write error" << std::endl;
-              }
-              else
-              {
-                // std::cout << "write \"0x02\"" << std::endl;
+              { //目標距離
+                cstate = EXCHANGE1;
+                time_count = 0;
               }
             }
             else
-            { //目標距離
-              cstate = EXCHANGE1;
-              time_count = 0;
+            { //カメラが移動体の正面方向を向いていないとき
+              cstate = ROT_VERT;
             }
           }
           else
-          { //カメラが移動体の正面方向を向いていないとき
-            cstate = ROT_VERT;
+          { //マーカーが移動体の方を向いていないとき
+            cstate = ROT_PARA;
+            // rot_count = cam_rot;
           }
-        }
-        else
-        { //マーカーが移動体の方を向いていないとき
-          cstate = ROT_PARA;
-          // rot_count = cam_rot;
+        } else {
+          ++time_count;
         }
         break;
 
@@ -259,7 +263,7 @@ int main(void)
         else
         {
           cstate = VERTICAL;
-          msleep(500);    //一旦停止
+          time_count = 0;
         }
         break;
 
@@ -280,6 +284,30 @@ int main(void)
           }
         }
         else if (pm->getAngle() < -TOL_ANGLE_STRICT)
+        {
+
+          if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x02)) < 0)
+          { //後退
+            std::cout << "write error" << std::endl;
+          }
+          else
+          {
+            // std::cout << "write \"0x02\"" << std::endl;
+          }
+        }
+        else if (pm->getDeflec() > TOL_DEFLEC)
+        {
+
+          if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x01)) < 0)
+          { //前進
+            std::cout << "write error" << std::endl;
+          }
+          else
+          {
+            // std::cout << "write \"0x01\"" << std::endl;
+          }
+        }
+        else if (pm->getDeflec() < -TOL_DEFLEC)
         {
 
           if ((wiringPiI2CWriteReg8(fd_motor, 0x00, 0x02)) < 0)
